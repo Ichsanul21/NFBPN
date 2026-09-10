@@ -58,7 +58,7 @@ class PpdbRegistrationController extends Controller
         $from = $registration->status;
         $registration->update([
             'status' => $data['status'],
-            'admin_note' => $data['admin_note'] ?? $registration->admin_note,
+            'admin_note' => \App\Support\Sanitize::text($data['admin_note'] ?? $registration->admin_note),
         ]);
 
         if ($from !== $data['status'] || ! empty($data['history_note'])) {

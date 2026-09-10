@@ -150,7 +150,7 @@ class PpdbFieldController extends Controller
         ]);
 
         $options = collect($data['options'] ?? [])
-            ->map(fn ($o) => trim((string) $o))->filter()->values()->all();
+            ->map(fn ($o) => \App\Support\Sanitize::text((string) $o, 255))->filter()->values()->all();
         if (in_array($data['type'], ['select', 'radio', 'checkbox'], true)) {
             abort_if(empty($options), 422, 'Tipe pilihan wajib punya minimal satu opsi.');
             $options = $options ?: null;
@@ -160,8 +160,8 @@ class PpdbFieldController extends Controller
 
         return [
             'jenjang' => $data['jenjang'],
-            'label' => $data['label'],
-            'section' => ! empty($data['section']) ? trim($data['section']) : null,
+            'label' => \App\Support\Sanitize::name($data['label']),
+            'section' => \App\Support\Sanitize::name($data['section'] ?? null),
             'type' => $data['type'],
             'options' => $options,
             'is_required' => ! empty($data['is_required']),
@@ -196,7 +196,7 @@ class PpdbFieldController extends Controller
 
         if (in_array($operator, ['in', 'not_in'], true)) {
             $values = collect((array) $request->input('visible_if_values', []))
-                ->map(fn ($v) => trim((string) $v))->filter()->values()->all();
+                ->map(fn ($v) => \App\Support\Sanitize::text((string) $v, 255))->filter()->values()->all();
             abort_if(empty($values), 422, 'Pilih minimal satu nilai pembanding.');
             if ($trigger->options) {
                 abort_unless(empty(array_diff($values, $trigger->options)), 422, 'Nilai pembanding harus dari opsi pemicu.');
@@ -209,7 +209,7 @@ class PpdbFieldController extends Controller
             ];
         }
 
-        $value = trim((string) $request->input('visible_if_value', ''));
+        $value = \App\Support\Sanitize::text((string) $request->input('visible_if_value', ''), 255) ?? '';
         abort_if($value === '', 422, 'Nilai pembanding wajib diisi.');
         if ($trigger->options) {
             abort_unless(in_array($value, $trigger->options, true), 422, 'Nilai pembanding harus dari opsi pemicu.');

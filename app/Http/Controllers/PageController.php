@@ -243,7 +243,7 @@ class PageController extends Controller
             $rules['parent_name'] = 'required|string|max:255';
             $rules['email'] = 'required|email|max:255|unique:users,email';
             $rules['whatsapp'] = 'required|string|max:20';
-            $rules['password'] = 'required|string|min:8|confirmed';
+            $rules['password'] = ['required', 'string', \App\Support\Passwords::rule(), 'confirmed'];
         }
         $fields = PpdbFormField::forJenjang($jenjang)->active()->ordered()->get();
         $submitted = $request->input('answers', []);
@@ -304,11 +304,11 @@ class PageController extends Controller
             'period_id' => $period->id,
             'user_id' => $user->id,
             'jenjang' => $jenjang,
-            'child_name' => $data['child_name'],
+            'child_name' => \App\Support\Sanitize::name($data['child_name']),
             'child_birthdate' => $data['child_birthdate'],
             'gender' => $data['gender'] ?? null,
-            'parent_name' => $data['parent_name'],
-            'whatsapp' => $data['whatsapp'],
+            'parent_name' => \App\Support\Sanitize::name($data['parent_name']),
+            'whatsapp' => \App\Support\Sanitize::phone($data['whatsapp']),
             'answers' => $answers,
             'status' => 'terkirim',
         ]);
@@ -352,7 +352,12 @@ class PageController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        ContactMessage::create($data);
+        ContactMessage::create([
+            'name' => \App\Support\Sanitize::name($data['name']),
+            'whatsapp' => \App\Support\Sanitize::phone($data['whatsapp'] ?? null),
+            'subject' => \App\Support\Sanitize::name($data['subject'] ?? null),
+            'message' => \App\Support\Sanitize::text($data['message']),
+        ]);
 
         return back()->with('success', 'Pesan terkirim. Tim kami akan menghubungi Anda di jam operasional.');
     }

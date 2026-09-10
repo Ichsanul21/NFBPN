@@ -33,12 +33,12 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => ['required', 'string', \App\Support\Passwords::rule()],
             'role' => 'required|exists:roles,name',
         ]);
 
         $user = User::create([
-            'name' => $data['name'],
+            'name' => \App\Support\Sanitize::name($data['name']),
             'email' => $data['email'],
             'password' => $data['password'],
         ]);
@@ -61,12 +61,12 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8',
+            'password' => ['nullable', 'string', \App\Support\Passwords::rule()],
             'role' => 'required|exists:roles,name',
         ]);
 
         $user->update([
-            'name' => $data['name'],
+            'name' => \App\Support\Sanitize::name($data['name']),
             'email' => $data['email'],
             ...(filled($data['password']) ? ['password' => $data['password']] : []),
         ]);

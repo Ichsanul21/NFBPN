@@ -97,6 +97,8 @@ class NewsController extends Controller
             'published_at' => 'nullable|date',
         ]);
 
+        $validated['title'] = \App\Support\Sanitize::name($validated['title']);
+        $validated['excerpt'] = \App\Support\Sanitize::text($validated['excerpt'] ?? null, 500);
         $validated['slug'] = $validated['slug'] ?: $this->uniqueSlug($validated['title'], $ignoreId);
         $validated['body'] = $this->purify($validated['body']);
         unset($validated['cover']);

@@ -71,6 +71,8 @@ class PpdbPeriodController extends Controller
             'note' => 'nullable|string',
             'is_active' => 'nullable|boolean',
         ]);
+        $data['name'] = \App\Support\Sanitize::name($data['name']);
+        $data['note'] = \App\Support\Sanitize::text($data['note'] ?? null);
         $data['is_active'] = $request->boolean('is_active');
 
         return $data;

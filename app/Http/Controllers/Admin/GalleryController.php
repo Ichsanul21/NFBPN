@@ -47,10 +47,11 @@ class GalleryController extends Controller
             'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
+        $title = \App\Support\Sanitize::name($data['title']);
         foreach ($data['photos'] as $i => $photo) {
             $stored = $images->storePhoto($photo, 'galeri');
             Gallery::create([
-                'title' => $data['title'].(count($data['photos']) > 1 ? ' '.($i + 1) : ''),
+                'title' => $title.(count($data['photos']) > 1 ? ' '.($i + 1) : ''),
                 'category' => $data['category'],
                 'unit' => $data['unit'] ?? null,
                 'path' => $stored['path'],
@@ -82,6 +83,7 @@ class GalleryController extends Controller
             'unit' => 'nullable|in:'.implode(',', self::UNITS),
         ]);
 
+        $data['title'] = \App\Support\Sanitize::name($data['title']);
         $gallery->update($data);
 
         return redirect()->route('admin.galleries.index')->with('success', 'Data foto berhasil diperbarui.');

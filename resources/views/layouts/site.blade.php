@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    @php($docTitle = trim($__env->yieldContent('title')) !== '' ? trim($__env->yieldContent('title')).' - Nurul Fikri Balikpapan' : 'Nurul Fikri Balikpapan | Sekolah Islam Terpadu')
+    @php($docTitle = trim($__env->yieldContent('title')) !== '' ? strip_tags(trim($__env->yieldContent('title'))).' - Nurul Fikri Balikpapan' : 'Nurul Fikri Balikpapan | Sekolah Islam Terpadu')
     <title>{!! $docTitle !!}</title>
     <meta name="description" content="@yield('meta', 'Daycare, KBIT, SDIT, dan SMPIT Nurul Fikri Balikpapan yang menumbuhkan generasi qurani yang cerdas dan berkarakter.')">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">

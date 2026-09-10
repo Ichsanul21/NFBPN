@@ -26,6 +26,7 @@
                             required autocomplete="new-password" />
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            @include('partials.password-meter', ['input' => 'password', 'confirm' => 'password_confirmation'])
         </div>
 
         <!-- Confirm Password -->

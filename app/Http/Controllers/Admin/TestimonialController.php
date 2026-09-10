@@ -67,6 +67,9 @@ class TestimonialController extends Controller
             'sort_order' => 'nullable|integer|min:0',
             'is_published' => 'nullable|boolean',
         ]);
+        $data['quote'] = \App\Support\Sanitize::text($data['quote'], 1000);
+        $data['name'] = \App\Support\Sanitize::name($data['name']);
+        $data['role'] = \App\Support\Sanitize::name($data['role'] ?? null);
         $data['sort_order'] = $data['sort_order'] ?? 0;
         $data['is_published'] = $request->boolean('is_published');
 

@@ -32,6 +32,8 @@ class RegistrationsExport implements FromCollection, WithHeadings
             ->get();
 
         return $regs->map(function (PpdbRegistration $r) {
+            // Cegah formula injection saat dibuka di Excel.
+            $safe = fn ($v) => is_string($v) && preg_match('/^[=+\-@]/', $v) ? "'".$v : $v;
             $row = [
                 $r->registration_no,
                 $r->period?->name.' ('.strtoupper($r->jenjang).')',
@@ -45,10 +47,10 @@ class RegistrationsExport implements FromCollection, WithHeadings
             ];
             foreach ($this->fields as $f) {
                 $val = $r->answers[$f->key] ?? null;
-                $row[] = is_array($val) ? implode('; ', $val) : $val;
+                $row[] = $safe(is_array($val) ? implode('; ', $val) : $val);
             }
 
-            return $row;
+            return array_map($safe, $row);
         });
     }
 

@@ -68,6 +68,10 @@ class AgendaController extends Controller
             'place' => 'nullable|string|max:255',
             'is_published' => 'nullable|boolean',
         ]);
+        $data['title'] = \App\Support\Sanitize::name($data['title']);
+        $data['description'] = \App\Support\Sanitize::text($data['description'] ?? null);
+        $data['time_label'] = \App\Support\Sanitize::name($data['time_label'] ?? null);
+        $data['place'] = \App\Support\Sanitize::name($data['place'] ?? null);
         $data['is_published'] = $request->boolean('is_published');
 
         return $data;

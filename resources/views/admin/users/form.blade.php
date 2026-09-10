@@ -16,7 +16,8 @@
     </div>
     <div class="grid sm:grid-cols-2 gap-5">
         <label class="grid gap-1.5 text-sm font-bold">Kata sandi {{ $item->exists ? '(kosongkan bila tidak diubah)' : '' }}
-            <input type="password" name="password" {{ $item->exists ? '' : 'required' }} minlength="8" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5" autocomplete="new-password">
+            <input id="user-password" type="password" name="password" {{ $item->exists ? '' : 'required' }} minlength="8" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5" autocomplete="new-password">
+            @include('partials.password-meter', ['input' => 'user-password'])
         </label>
         <label class="grid gap-1.5 text-sm font-bold">Role
             <select name="role" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
