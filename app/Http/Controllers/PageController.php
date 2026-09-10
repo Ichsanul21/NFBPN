@@ -185,14 +185,26 @@ class PageController extends Controller
             ->filter(fn ($p) => $p->isOpen());
 
         $fieldsByJenjang = [];
+        $conditionsByJenjang = [];
         foreach (['daycare', 'kbit', 'sdit', 'smpit'] as $j) {
-            $fieldsByJenjang[$j] = PpdbFormField::forJenjang($j)->ordered()->get();
+            $fields = PpdbFormField::forJenjang($j)->ordered()->get();
+            $fieldsByJenjang[$j] = $fields;
+            foreach ($fields as $f) {
+                if ($f->hasCondition()) {
+                    $conditionsByJenjang[$j][$f->key] = [
+                        'trigger' => $f->visible_if_field,
+                        'op' => $f->visible_if_operator,
+                        'value' => $f->visible_if_value,
+                    ];
+                }
+            }
         }
 
         return view('pages.ppdb', [
             'units' => $this->units(),
             'periods' => $periods,
             'fieldsByJenjang' => $fieldsByJenjang,
+            'conditionsByJenjang' => $conditionsByJenjang,
         ]);
     }
 
@@ -221,7 +233,9 @@ class PageController extends Controller
             'whatsapp' => 'required|string|max:20',
         ];
         $fields = PpdbFormField::forJenjang($jenjang)->ordered()->get();
-        foreach ($fields as $f) {
+        $submitted = $request->input('answers', []);
+        $visible = $fields->filter(fn ($f) => $f->isVisibleFor($submitted))->values();
+        foreach ($visible as $f) {
             $key = "answers.{$f->key}";
             $base = match ($f->type) {
                 'number' => 'numeric',
@@ -242,7 +256,7 @@ class PageController extends Controller
         $data = $request->validate($rules);
 
         $answers = $data['answers'] ?? [];
-        foreach ($fields as $f) {
+        foreach ($visible as $f) {
             if ($f->type === 'file' && $request->hasFile("answers.{$f->key}")) {
                 $answers[$f->key] = $request->file("answers.{$f->key}")->store('ppdb/berkas', 'public');
             }

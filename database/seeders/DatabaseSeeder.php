@@ -113,15 +113,19 @@ class DatabaseSeeder extends Seeder
             );
 
             $fields = [
-                ['asal_sekolah', 'Asal sekolah', 'text', null, false, 1, false],
-                ['hobi', 'Hobi anak', 'text', null, false, 2, false],
-                ['transportasi', 'Transportasi ke sekolah', 'select', ['Antar jemput keluarga', 'Kendaraan umum', 'Lainnya'], true, 3, false],
-                ['keterangan', 'Keterangan tambahan / kebutuhan khusus', 'textarea', null, false, 4, false],
+                ['asal_sekolah', 'Asal sekolah', null, 'text', null, false, 1, null, null, null],
+                ['hobi', 'Hobi anak', null, 'text', null, false, 2, null, null, null],
+                ['transportasi', 'Transportasi ke sekolah', 'Transportasi', 'select', ['Antar jemput keluarga', 'Kendaraan umum', 'Lainnya'], true, 3, null, null, null],
+                ['transport_lain', 'Sebutkan transportasinya', 'Transportasi', 'text', null, true, 4, 'transportasi', 'equals', 'Lainnya'],
+                ['kebutuhan_khusus', 'Anak berkebutuhan khusus?', 'Kesehatan', 'radio', ['Ya', 'Tidak'], true, 5, null, null, null],
+                ['kebutuhan_detail', 'Jelaskan kebutuhannya', 'Kesehatan', 'textarea', null, true, 6, 'kebutuhan_khusus', 'equals', 'Ya'],
+                ['keterangan', 'Keterangan tambahan', null, 'textarea', null, false, 7, null, null, null],
             ];
-            foreach ($fields as [$key, $label2, $type, $options, $required, $sort, $core]) {
-                PpdbFormField::firstOrCreate(['jenjang' => $slug, 'key' => $key], [
-                    'label' => $label2, 'type' => $type, 'options' => $options,
-                    'is_required' => $required, 'sort_order' => $sort, 'is_core' => $core,
+            foreach ($fields as [$key, $label2, $section, $type, $options, $required, $sort, $cf, $cop, $cval]) {
+                PpdbFormField::updateOrCreate(['jenjang' => $slug, 'key' => $key], [
+                    'label' => $label2, 'section' => $section, 'type' => $type, 'options' => $options,
+                    'is_required' => $required, 'sort_order' => $sort, 'is_core' => false,
+                    'visible_if_field' => $cf, 'visible_if_operator' => $cop, 'visible_if_value' => $cval,
                 ]);
             }
         }

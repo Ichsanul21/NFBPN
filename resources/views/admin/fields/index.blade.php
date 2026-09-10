@@ -21,8 +21,12 @@
                 <p class="font-heading font-bold">{{ $f->label }}
                     @if($f->is_core)<span class="ml-1 text-[10px] font-bold uppercase bg-nf-yellow text-nf-ink rounded-full px-2 py-0.5">inti</span>@endif
                     @if($f->is_required)<span class="ml-1 text-[10px] font-bold uppercase bg-red-100 text-red-700 rounded-full px-2 py-0.5">wajib</span>@endif
+                    @if($f->section)<span class="ml-1 text-[10px] font-bold uppercase bg-nf-blue-soft text-nf-blue-dark rounded-full px-2 py-0.5">{{ $f->section }}</span>@endif
                 </p>
                 <p class="text-xs text-nf-ink/50 mt-0.5">{{ $types[$f->type] ?? $f->type }} · key: {{ $f->key }} · urutan {{ $f->sort_order }}</p>
+                @if($f->hasCondition())
+                <p class="text-xs text-nf-ink/55 mt-1">Muncul jika <strong>{{ $f->visible_if_field }}</strong> {{ \App\Models\PpdbFormField::OPERATORS[$f->visible_if_operator] ?? $f->visible_if_operator }} <strong>{{ is_array($f->visible_if_value) ? implode(', ', $f->visible_if_value) : ($f->visible_if_value ?: '-') }}</strong></p>
+                @endif
             </div>
             @can('update', $f)<a href="{{ route('admin.fields.edit', $f) }}" class="text-sm font-bold text-nf-blue-dark hover:underline shrink-0">Ubah</a>@endcan
             @can('delete', $f)

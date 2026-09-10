@@ -17,9 +17,19 @@ class PpdbFormField extends Model
         'file' => 'Unggah berkas',
     ];
 
+    public const OPERATORS = [
+        'equals' => 'sama dengan',
+        'not_equals' => 'tidak sama dengan',
+        'in' => 'salah satu dari',
+        'not_in' => 'bukan salah satu dari',
+        'filled' => 'diisi',
+        'empty' => 'kosong',
+    ];
+
     protected $fillable = [
-        'jenjang', 'key', 'label', 'type', 'options',
+        'jenjang', 'key', 'label', 'section', 'type', 'options',
         'is_required', 'sort_order', 'is_core',
+        'visible_if_field', 'visible_if_operator', 'visible_if_value',
     ];
 
     protected function casts(): array
@@ -28,6 +38,7 @@ class PpdbFormField extends Model
             'options' => 'array',
             'is_required' => 'boolean',
             'is_core' => 'boolean',
+            'visible_if_value' => 'array',
         ];
     }
 
@@ -39,5 +50,57 @@ class PpdbFormField extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function hasCondition(): bool
+    {
+        return ! empty($this->visible_if_field) && ! empty($this->visible_if_operator);
+    }
+
+    /**
+     * Kandidat pemicu: field sejenjang tanpa kondisi sendiri (mencegah siklus,
+     * maksimal 1 level) dan bukan tipe file.
+     */
+    public static function triggerCandidates(string $jenjang, ?int $exceptId = null)
+    {
+        return static::forJenjang($jenjang)->ordered()->get()->filter(
+            fn (self $f) => ! $f->hasCondition()
+                && $f->type !== 'file'
+                && $f->id !== $exceptId
+        )->values();
+    }
+
+    /**
+     * Evaluasi apakah field tampil untuk jawaban yang diberikan.
+     * $answers: array key => value (string|array|null).
+     */
+    public function isVisibleFor(array $answers): bool
+    {
+        if (! $this->hasCondition()) {
+            return true;
+        }
+
+        $actual = $answers[$this->visible_if_field] ?? null;
+        $expected = $this->visible_if_value;
+
+        return match ($this->visible_if_operator) {
+            'equals' => $this->equalsValue($actual, $expected),
+            'not_equals' => ! $this->equalsValue($actual, $expected),
+            'in' => count(array_intersect((array) $actual, (array) $expected)) > 0,
+            'not_in' => count(array_intersect((array) $actual, (array) $expected)) === 0,
+            'filled' => filled($actual),
+            'empty' => blank($actual),
+            default => true,
+        };
+    }
+
+    protected function equalsValue(mixed $actual, mixed $expected): bool
+    {
+        if (is_array($actual)) {
+            return in_array($expected, $actual, true)
+                || (is_array($expected) && count(array_intersect($actual, $expected)) > 0);
+        }
+
+        return ((string) $actual) === ((string) (is_array($expected) ? ($expected[0] ?? '') : $expected));
     }
 }

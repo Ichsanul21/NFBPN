@@ -76,6 +76,8 @@ body {
 @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 .animate-floaty { animation: floaty 5s ease-in-out infinite; }
 
+[x-cloak] { display: none !important; }
+
 /* --- counter pop --- */
 @keyframes popIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
 .pop-in { animation: popIn .5s ease both; }

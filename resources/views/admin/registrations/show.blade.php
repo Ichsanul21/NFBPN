@@ -67,7 +67,10 @@
         @else
         <p class="text-sm text-nf-ink/55">Mode lihat saja (akses Kepala Sekolah).</p>
         @endcan
-        <a href="https://wa.me/{{ ltrim(preg_replace('/[^0-9]/', '', $item->whatsapp), '0') ? '62'.ltrim(preg_replace('/[^0-9]/', '', $item->whatsapp), '0') : '' }}" target="_blank" rel="noopener" class="mt-3 block text-center text-sm font-bold border border-nf-green/40 rounded-full px-4 py-2.5 hover:bg-nf-green-soft transition">Chat WhatsApp Ortu</a>
+        @php $wa = '62'.ltrim(preg_replace('/[^0-9]/', '', $item->whatsapp ?? ''), '0'); @endphp
+        @if(strlen($wa) > 2)
+        <a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener" class="mt-3 block text-center text-sm font-bold border border-nf-green/40 rounded-full px-4 py-2.5 hover:bg-nf-green-soft transition">Chat WhatsApp Ortu</a>
+        @endif
     </div>
 </div>
 @endsection

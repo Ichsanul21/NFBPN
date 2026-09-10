@@ -55,7 +55,7 @@
         <h2 class="font-heading font-extrabold text-2xl">Formulir Pendaftaran</h2>
         <p class="mt-1 text-sm text-nf-ink/55">Data tersimpan aman dan hanya terlihat oleh tim admisi.</p>
         @if(session('error'))<p class="mt-4 text-sm font-bold text-red-700 bg-red-50 rounded-xl px-4 py-3">{{ session('error') }}</p>@endif
-        <form method="POST" action="{{ route('ppdb.store') }}" enctype="multipart/form-data" class="mt-6 grid gap-6" x-data="{ jenjang: '{{ old('jenjang', 'sdit') }}', periodId: '{{ old('period_id') }}' }">
+        <form method="POST" action="{{ route('ppdb.store') }}" enctype="multipart/form-data" class="mt-6 grid gap-6" x-data="ppdbForm(@js($conditionsByJenjang), @js(old('answers', [])))">
             @csrf
             <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
             <div>
@@ -65,7 +65,7 @@
                         <select name="period_id" x-model="periodId" x-on:change="jenjang = $event.target.selectedOptions[0].dataset.jenjang || 'sdit'" required class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
                             <option value="">Pilih periode</option>
                             @foreach($periods as $p)
-                            <option value="{{ $p->id }}" data-jenjang="{{ $p->jenjang }}">{{ $p->name }} ({{ strtoupper($p->jenjang) }})</option>
+                            <option value="{{ $p->id }}" data-jenjang="{{ $p->jenjang }}" @selected(old('period_id') == $p->id)>{{ $p->name }} ({{ strtoupper($p->jenjang) }})</option>
                             @endforeach
                         </select>
                     </label>
@@ -92,43 +92,108 @@
                 </div>
             </div>
             @foreach($fieldsByJenjang as $j => $fields)
-            <div x-show="jenjang === '{{ $j }}'">
-                <h3 class="font-heading font-bold text-nf-blue-dark">D. Informasi Tambahan ({{ strtoupper($j) }})</h3>
-                <div class="mt-3 grid sm:grid-cols-2 gap-4">
-                    @foreach($fields as $f)
-                    <label class="grid gap-1.5 text-sm font-bold {{ in_array($f->type, ['textarea']) ? 'sm:col-span-2' : '' }}">{{ $f->label }} @if($f->is_required)<span class="text-red-600">*</span>@endif
-                        @if($f->type === 'textarea')
-                        <textarea name="answers[{{ $f->key }}]" rows="3" @if($f->is_required) required @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">{{ old('answers.'.$f->key) }}</textarea>
-                        @elseif($f->type === 'select')
-                        <select name="answers[{{ $f->key }}]" @if($f->is_required) required @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
-                            <option value="">Pilih</option>
-                            @foreach($f->options ?? [] as $o)<option @selected(old('answers.'.$f->key) === $o)>{{ $o }}</option>@endforeach
-                        </select>
-                        @elseif($f->type === 'radio')
-                        <span class="flex flex-wrap gap-3 font-normal">
-                            @foreach($f->options ?? [] as $o)<label class="flex items-center gap-1.5"><input type="radio" name="answers[{{ $f->key }}]" value="{{ $o }}" @checked(old('answers.'.$f->key) === $o) class="text-nf-blue"> {{ $o }}</label>@endforeach
-                        </span>
-                        @elseif($f->type === 'checkbox')
-                        <span class="flex flex-wrap gap-3 font-normal">
-                            @foreach($f->options ?? [] as $o)<label class="flex items-center gap-1.5"><input type="checkbox" name="answers[{{ $f->key }}][]" value="{{ $o }}" @checked(in_array($o, old('answers.'.$f->key, []))) class="rounded text-nf-blue"> {{ $o }}</label>@endforeach
-                        </span>
-                        @elseif($f->type === 'file')
-                        <input type="file" name="answers[{{ $f->key }}]" @if($f->is_required) required @endif accept=".pdf,.jpg,.jpeg,.png,.webp" class="font-normal text-sm file:mr-3 file:rounded-full file:border-0 file:bg-nf-blue-soft file:text-nf-blue-dark file:font-bold file:px-4 file:py-2">
-                        @elseif($f->type === 'number')
-                        <input type="number" name="answers[{{ $f->key }}]" value="{{ old('answers.'.$f->key) }}" @if($f->is_required) required @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
-                        @elseif($f->type === 'date')
-                        <input type="date" name="answers[{{ $f->key }}]" value="{{ old('answers.'.$f->key) }}" @if($f->is_required) required @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
-                        @else
-                        <input type="text" name="answers[{{ $f->key }}]" value="{{ old('answers.'.$f->key) }}" @if($f->is_required) required @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
-                        @endif
-                    </label>
+            <template x-if="jenjang === '{{ $j }}'">
+                <div data-jenjang-section="{{ $j }}">
+                    <h3 class="font-heading font-bold text-nf-blue-dark">D. Informasi Tambahan ({{ strtoupper($j) }})</h3>
+                    @php $grouped = $fields->groupBy(fn ($f) => $f->section ?: ''); @endphp
+                    @foreach($grouped as $sectionName => $group)
+                    @if($sectionName !== '')<h4 class="mt-5 mb-1 font-heading font-bold text-sm uppercase tracking-widest text-nf-blue-dark/70">{{ $sectionName }}</h4>@endif
+                    <div class="mt-3 grid sm:grid-cols-2 gap-4">
+                        @foreach($group as $f)
+                        @php $cond = $f->hasCondition(); @endphp
+                        <div @if($cond) x-show="isVisible('{{ $j }}', '{{ $f->key }}')" x-transition.opacity.duration.200ms @endif>
+                        <label class="grid gap-1.5 text-sm font-bold {{ in_array($f->type, ['textarea']) ? 'sm:col-span-2' : '' }}">{{ $f->label }} @if($f->is_required)<span class="text-red-600">*</span>@endif
+                            @if($f->type === 'textarea')
+                            <textarea name="answers[{{ $f->key }}]" rows="3" x-on:input="sync('{{ $f->key }}', $event.target)" @if($f->is_required && !$cond) required @elseif($f->is_required) :required="isVisible('{{ $j }}', '{{ $f->key }}')" @endif @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 disabled:opacity-50">{{ old('answers.'.$f->key) }}</textarea>
+                            @elseif($f->type === 'select')
+                            <select name="answers[{{ $f->key }}]" x-on:change="sync('{{ $f->key }}', $event.target)" @if($f->is_required && !$cond) required @elseif($f->is_required) :required="isVisible('{{ $j }}', '{{ $f->key }}')" @endif @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 disabled:opacity-50">
+                                <option value="">Pilih</option>
+                                @foreach($f->options ?? [] as $o)<option @selected(old('answers.'.$f->key) === $o)>{{ $o }}</option>@endforeach
+                            </select>
+                            @elseif($f->type === 'radio')
+                            <span class="flex flex-wrap gap-3 font-normal">
+                                @foreach($f->options ?? [] as $o)<label class="flex items-center gap-1.5"><input type="radio" name="answers[{{ $f->key }}]" value="{{ $o }}" @checked(old('answers.'.$f->key) === $o) x-on:change="sync('{{ $f->key }}', $event.target)" @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif class="text-nf-blue disabled:opacity-50"> {{ $o }}</label>@endforeach
+                            </span>
+                            @elseif($f->type === 'checkbox')
+                            <span class="flex flex-wrap gap-3 font-normal">
+                                @foreach($f->options ?? [] as $o)<label class="flex items-center gap-1.5"><input type="checkbox" name="answers[{{ $f->key }}][]" value="{{ $o }}" @checked(in_array($o, old('answers.'.$f->key, []))) x-on:change="sync('{{ $f->key }}', $event.target)" @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif class="rounded text-nf-blue disabled:opacity-50"> {{ $o }}</label>@endforeach
+                            </span>
+                            @elseif($f->type === 'file')
+                            <input type="file" name="answers[{{ $f->key }}]" @if($f->is_required && !$cond) required @elseif($f->is_required) :required="isVisible('{{ $j }}', '{{ $f->key }}')" @endif @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif accept=".pdf,.jpg,.jpeg,.png,.webp" class="font-normal text-sm file:mr-3 file:rounded-full file:border-0 file:bg-nf-blue-soft file:text-nf-blue-dark file:font-bold file:px-4 file:py-2 disabled:opacity-50">
+                            @elseif($f->type === 'number')
+                            <input type="number" name="answers[{{ $f->key }}]" value="{{ old('answers.'.$f->key) }}" x-on:input="sync('{{ $f->key }}', $event.target)" @if($f->is_required && !$cond) required @elseif($f->is_required) :required="isVisible('{{ $j }}', '{{ $f->key }}')" @endif @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 disabled:opacity-50">
+                            @elseif($f->type === 'date')
+                            <input type="date" name="answers[{{ $f->key }}]" value="{{ old('answers.'.$f->key) }}" x-on:change="sync('{{ $f->key }}', $event.target)" @if($f->is_required && !$cond) required @elseif($f->is_required) :required="isVisible('{{ $j }}', '{{ $f->key }}')" @endif @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 disabled:opacity-50">
+                            @else
+                            <input type="text" name="answers[{{ $f->key }}]" value="{{ old('answers.'.$f->key) }}" x-on:input="sync('{{ $f->key }}', $event.target)" @if($f->is_required && !$cond) required @elseif($f->is_required) :required="isVisible('{{ $j }}', '{{ $f->key }}')" @endif @if($cond) :disabled="!isVisible('{{ $j }}', '{{ $f->key }}')" @endif class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 disabled:opacity-50">
+                            @endif
+                        </label>
+                        </div>
+                        @endforeach
+                    </div>
                     @endforeach
                 </div>
-            </div>
+            </template>
             @endforeach
             <button class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-extrabold px-6 py-3.5 rounded-full transition shadow-lg shadow-nf-blue/30">Kirim Pendaftaran</button>
         </form>
     </div>
     @endguest
 </section>
+
+<script>
+function ppdbForm(conditions, initialAnswers) {
+    const asArr = v => (Array.isArray(v) ? v.map(String) : (v === undefined || v === null || v === '' ? [] : [String(v)]));
+    const first = v => (Array.isArray(v) ? (v[0] ?? '') : (v ?? ''));
+    return {
+        jenjang: 'sdit',
+        periodId: '',
+        answers: initialAnswers || {},
+        init() {
+            const sel = this.$el.querySelector('select[name="period_id"]');
+            if (sel && sel.selectedOptions[0]) {
+                this.periodId = sel.value;
+                this.jenjang = sel.selectedOptions[0].dataset.jenjang || 'sdit';
+            }
+        },
+        isVisible(j, key) {
+            const c = (conditions[j] || {})[key];
+            if (!c) return true;
+            const actual = this.answers[c.trigger];
+            const exp = c.value;
+            switch (c.op) {
+                case 'equals':
+                    if (Array.isArray(actual)) return actual.map(String).includes(String(first(exp)));
+                    return String(actual ?? '') === String(first(exp));
+                case 'not_equals':
+                    if (Array.isArray(actual)) return !actual.map(String).includes(String(first(exp)));
+                    return String(actual ?? '') !== String(first(exp));
+                case 'in':
+                    return asArr(actual).some(v => asArr(exp).includes(v));
+                case 'not_in':
+                    return !asArr(actual).some(v => asArr(exp).includes(v));
+                case 'filled':
+                    return actual !== undefined && actual !== null && String(actual).trim() !== '' && !(Array.isArray(actual) && actual.length === 0);
+                case 'empty': {
+                    const filled = actual !== undefined && actual !== null && String(actual).trim() !== '' && !(Array.isArray(actual) && actual.length === 0);
+                    return !filled;
+                }
+                default:
+                    return true;
+            }
+        },
+        sync(key, el) {
+            const scope = el.closest('[data-jenjang-section]') || document;
+            if (el.type === 'checkbox') {
+                this.answers[key] = [...scope.querySelectorAll('input[name="answers[' + key + '][]"]:checked')].map(b => b.value);
+            } else if (el.type === 'radio') {
+                const sel = scope.querySelector('input[name="answers[' + key + ']"]:checked');
+                this.answers[key] = sel ? sel.value : '';
+            } else {
+                this.answers[key] = el.value;
+            }
+        }
+    };
+}
+</script>
 @endsection
