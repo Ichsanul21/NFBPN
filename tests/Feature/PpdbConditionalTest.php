@@ -43,6 +43,8 @@ class PpdbConditionalTest extends TestCase
 
         $this->ortu = User::factory()->create();
         $this->ortu->assignRole('orang-tua');
+        $this->admin = User::factory()->create();
+        $this->admin->assignRole('super-admin');
     }
 
     protected function basePayload(array $answers): array
@@ -94,15 +96,13 @@ class PpdbConditionalTest extends TestCase
 
     public function test_admin_cannot_create_condition_cycle(): void
     {
-        $admin = User::factory()->create();
-        $admin->assignRole('super-admin');
-
         $a = PpdbFormField::where('key', 'transportasi')->first();
 
-        $res = $this->actingAs($admin)->put("/admin/fields/{$a->id}", [
+        $res = $this->actingAs($this->admin)->put("/admin/fields/{$a->id}", [
             'jenjang' => 'sdit',
             'label' => 'Transportasi',
             'type' => 'select',
+            'options' => ['Antar jemput', 'Lainnya'],
             'visible_if_field' => 'transport_lain',
             'visible_if_operator' => 'equals',
             'visible_if_value' => 'x',
@@ -110,5 +110,72 @@ class PpdbConditionalTest extends TestCase
 
         $res->assertStatus(422);
         $this->assertNull($a->fresh()->visible_if_field);
+    }
+
+    public function test_quick_create_returns_to_studio_with_inspector(): void
+    {
+        $res = $this->actingAs($this->admin)->post('/admin/fields/quick', [
+            'jenjang' => 'sdit',
+            'type' => 'text',
+        ]);
+
+        $field = PpdbFormField::where('label', 'Pertanyaan baru')->first();
+        $this->assertNotNull($field);
+        $res->assertRedirect(route('admin.fields.index', ['jenjang' => 'sdit', 'edit' => $field->id]));
+    }
+
+    public function test_reorder_persists_sequence(): void
+    {
+        $ids = PpdbFormField::forJenjang('sdit')->ordered()->pluck('id')->all();
+        $reversed = array_reverse($ids);
+
+        $res = $this->actingAs($this->admin)->postJson('/admin/fields/reorder', [
+            'jenjang' => 'sdit',
+            'order' => $reversed,
+        ]);
+
+        $res->assertOk()->assertJson(['ok' => true]);
+        $this->assertSame($reversed, PpdbFormField::forJenjang('sdit')->ordered()->pluck('id')->all());
+    }
+
+    public function test_cannot_delete_trigger_field(): void
+    {
+        $trigger = PpdbFormField::where('key', 'transportasi')->first();
+
+        $res = $this->actingAs($this->admin)->delete("/admin/fields/{$trigger->id}");
+
+        $res->assertRedirect();
+        $res->assertSessionHas('error');
+        $this->assertNotNull(PpdbFormField::find($trigger->id));
+    }
+
+    public function test_options_array_saved_from_rows(): void
+    {
+        $field = PpdbFormField::where('key', 'transportasi')->first();
+
+        $res = $this->actingAs($this->admin)->put("/admin/fields/{$field->id}", [
+            'jenjang' => 'sdit',
+            'label' => 'Transportasi',
+            'type' => 'select',
+            'options' => ['Antar jemput', 'Lainnya', 'Sepeda'],
+            'is_required' => '1',
+        ]);
+
+        $res->assertRedirect();
+        $this->assertSame(
+            ['Antar jemput', 'Lainnya', 'Sepeda'],
+            $field->fresh()->options
+        );
+    }
+
+    public function test_inactive_field_hidden_from_public_form(): void
+    {
+        $field = PpdbFormField::where('key', 'transportasi')->first();
+        $field->update(['is_active' => false]);
+
+        $res = $this->actingAs($this->ortu)->get('/ppdb');
+
+        $res->assertOk();
+        $res->assertDontSee('name="answers[transportasi]"', false);
     }
 }

@@ -25,7 +25,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:dashboar
     Route::post('news/image', [NewsImageController::class, 'upload'])->name('news.image');
 
     Route::resource('periods', PpdbPeriodController::class)->except(['show']);
-    Route::resource('fields', PpdbFieldController::class)->except(['show']);
+    Route::get('fields', [PpdbFieldController::class, 'index'])->name('fields.index');
+    Route::post('fields/quick', [PpdbFieldController::class, 'quick'])->name('fields.quick');
+    Route::post('fields/reorder', [PpdbFieldController::class, 'reorder'])->name('fields.reorder');
+    Route::put('fields/{field}', [PpdbFieldController::class, 'update'])->name('fields.update');
+    Route::delete('fields/{field}', [PpdbFieldController::class, 'destroy'])->name('fields.destroy');
     Route::resource('registrations', PpdbRegistrationController::class)->only(['index', 'show', 'update', 'destroy']);
     Route::get('registrations-export', PpdbExportController::class)->name('registrations.export');
 

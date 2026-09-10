@@ -28,7 +28,7 @@ class PpdbFormField extends Model
 
     protected $fillable = [
         'jenjang', 'key', 'label', 'section', 'type', 'options',
-        'is_required', 'sort_order', 'is_core',
+        'is_required', 'sort_order', 'is_core', 'is_active',
         'visible_if_field', 'visible_if_operator', 'visible_if_value',
     ];
 
@@ -38,8 +38,14 @@ class PpdbFormField extends Model
             'options' => 'array',
             'is_required' => 'boolean',
             'is_core' => 'boolean',
+            'is_active' => 'boolean',
             'visible_if_value' => 'array',
         ];
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 
     public function scopeForJenjang($query, string $jenjang)

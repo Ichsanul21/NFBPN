@@ -187,7 +187,7 @@ class PageController extends Controller
         $fieldsByJenjang = [];
         $conditionsByJenjang = [];
         foreach (['daycare', 'kbit', 'sdit', 'smpit'] as $j) {
-            $fields = PpdbFormField::forJenjang($j)->ordered()->get();
+            $fields = PpdbFormField::forJenjang($j)->active()->ordered()->get();
             $fieldsByJenjang[$j] = $fields;
             foreach ($fields as $f) {
                 if ($f->hasCondition()) {
@@ -232,7 +232,7 @@ class PageController extends Controller
             'parent_name' => 'required|string|max:255',
             'whatsapp' => 'required|string|max:20',
         ];
-        $fields = PpdbFormField::forJenjang($jenjang)->ordered()->get();
+        $fields = PpdbFormField::forJenjang($jenjang)->active()->ordered()->get();
         $submitted = $request->input('answers', []);
         $visible = $fields->filter(fn ($f) => $f->isVisibleFor($submitted))->values();
         foreach ($visible as $f) {

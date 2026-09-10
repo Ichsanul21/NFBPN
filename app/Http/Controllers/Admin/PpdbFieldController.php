@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PpdbFormField;
+use App\Models\PpdbRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -14,55 +15,79 @@ class PpdbFieldController extends Controller
         $this->authorize('viewAny', PpdbFormField::class);
 
         $jenjang = $request->get('jenjang', 'sdit');
+        abort_unless(array_key_exists($jenjang, PpdbPeriodController::JENJANGS), 404);
+
         $fields = PpdbFormField::forJenjang($jenjang)->ordered()->get();
 
-        return view('admin.fields.index', [
+        $editField = null;
+        if ($request->filled('edit')) {
+            $editField = PpdbFormField::forJenjang($jenjang)->find($request->input('edit'));
+        }
+
+        $triggers = $editField
+            ? PpdbFormField::triggerCandidates($jenjang, $editField->id)
+            : collect();
+
+        return view('admin.fields.studio', [
             'fields' => $fields,
             'jenjang' => $jenjang,
             'jenjangs' => PpdbPeriodController::JENJANGS,
             'types' => PpdbFormField::TYPES,
+            'operators' => PpdbFormField::OPERATORS,
+            'editField' => $editField,
+            'triggers' => $triggers,
+            'answerCounts' => $this->answerCounts($jenjang),
+            'conditions' => $this->conditionsFor($fields),
+            'sample' => $this->sampleAnswers($fields),
         ]);
     }
 
-    protected function formData(PpdbFormField $item): array
-    {
-        return [
-            'item' => $item,
-            'jenjangs' => PpdbPeriodController::JENJANGS,
-            'types' => PpdbFormField::TYPES,
-            'operators' => PpdbFormField::OPERATORS,
-            'triggers' => PpdbFormField::triggerCandidates($item->jenjang ?: 'sdit', $item->id),
-        ];
-    }
-
-    public function create(Request $request)
+    /**
+     * Buat field baru dari pemilih tipe, langsung buka inspector.
+     */
+    public function quick(Request $request)
     {
         $this->authorize('create', PpdbFormField::class);
 
-        return view('admin.fields.form', $this->formData(
-            new PpdbFormField(['jenjang' => $request->get('jenjang', 'sdit')])
-        ));
+        $data = $request->validate([
+            'jenjang' => 'required|in:'.implode(',', array_keys(PpdbPeriodController::JENJANGS)),
+            'type' => 'required|in:'.implode(',', array_keys(PpdbFormField::TYPES)),
+        ]);
+
+        $label = 'Pertanyaan baru';
+        $field = PpdbFormField::create([
+            'jenjang' => $data['jenjang'],
+            'key' => Str::slug($label, '_').'_'.time(),
+            'label' => $label,
+            'type' => $data['type'],
+            'options' => in_array($data['type'], ['select', 'radio', 'checkbox'], true) ? ['Opsi 1', 'Opsi 2'] : null,
+            'sort_order' => (int) PpdbFormField::forJenjang($data['jenjang'])->max('sort_order') + 1,
+        ]);
+
+        return redirect()->route('admin.fields.index', ['jenjang' => $field->jenjang, 'edit' => $field->id]);
     }
 
-    public function store(Request $request)
+    /**
+     * Simpan urutan drag-and-drop.
+     */
+    public function reorder(Request $request)
     {
-        $this->authorize('create', PpdbFormField::class);
+        $this->authorize('update', PpdbFormField::class);
 
-        $data = $this->validated($request);
-        $data['key'] = Str::slug($data['label'], '_') ?: 'field_'.time();
-        $data['is_core'] = false;
+        $data = $request->validate([
+            'jenjang' => 'required|string',
+            'order' => 'required|array',
+            'order.*' => 'integer',
+        ]);
 
-        PpdbFormField::create($data);
+        $ids = PpdbFormField::forJenjang($data['jenjang'])->pluck('id')->all();
+        abort_unless(empty(array_diff($data['order'], $ids)) && count($data['order']) === count($ids), 422);
 
-        return redirect()->route('admin.fields.index', ['jenjang' => $data['jenjang']])
-            ->with('success', 'Field berhasil ditambahkan.');
-    }
+        foreach ($data['order'] as $i => $id) {
+            PpdbFormField::where('id', $id)->update(['sort_order' => $i]);
+        }
 
-    public function edit(PpdbFormField $field)
-    {
-        $this->authorize('update', $field);
-
-        return view('admin.fields.form', $this->formData($field));
+        return response()->json(['ok' => true]);
     }
 
     public function update(Request $request, PpdbFormField $field)
@@ -76,8 +101,8 @@ class PpdbFieldController extends Controller
 
         $field->update($data);
 
-        return redirect()->route('admin.fields.index', ['jenjang' => $field->jenjang])
-            ->with('success', 'Field berhasil diperbarui.');
+        return redirect()->route('admin.fields.index', ['jenjang' => $field->jenjang, 'edit' => $field->id])
+            ->with('success', 'Field berhasil diperbarui. Cek pratinjau di kanan.');
     }
 
     public function destroy(PpdbFormField $field)
@@ -87,6 +112,17 @@ class PpdbFieldController extends Controller
         if ($field->is_core) {
             return back()->with('error', 'Field inti tidak dapat dihapus.');
         }
+
+        $dependents = PpdbFormField::forJenjang($field->jenjang)
+            ->where('visible_if_field', $field->key)->pluck('label')->all();
+        if ($dependents) {
+            return back()->with('error', 'Tidak bisa dihapus. Field ini dipakai aturan tampil oleh: '.implode(', ', $dependents).'. Ubah dulu aturan tersebut.');
+        }
+
+        if (($this->answerCounts($field->jenjang)[$field->key] ?? 0) > 0) {
+            return back()->with('error', 'Tidak bisa dihapus karena sudah ada jawaban pendaftar. Arsipkan saja (nonaktifkan) agar tidak tampil di form baru.');
+        }
+
         $field->delete();
 
         return redirect()->route('admin.fields.index', ['jenjang' => $field->jenjang])
@@ -100,8 +136,10 @@ class PpdbFieldController extends Controller
             'label' => 'required|string|max:255',
             'section' => 'nullable|string|max:255',
             'type' => 'required|in:'.implode(',', array_keys(PpdbFormField::TYPES)),
-            'options_text' => 'nullable|string',
+            'options' => 'nullable|array|max:50',
+            'options.*' => 'nullable|string|max:255',
             'is_required' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
             'visible_if_field' => 'nullable|string|max:255',
             'visible_if_operator' => 'nullable|in:'.implode(',', array_keys(PpdbFormField::OPERATORS)),
@@ -110,30 +148,28 @@ class PpdbFieldController extends Controller
             'visible_if_values.*' => 'string|max:255',
         ]);
 
-        $options = null;
-        if (in_array($data['type'], ['select', 'radio', 'checkbox'], true) && ! empty($data['options_text'])) {
-            $options = collect(preg_split('/\r\n|\r|\n/', $data['options_text']))
-                ->map(fn ($o) => trim($o))->filter()->values()->all();
+        $options = collect($data['options'] ?? [])
+            ->map(fn ($o) => trim((string) $o))->filter()->values()->all();
+        if (in_array($data['type'], ['select', 'radio', 'checkbox'], true)) {
+            abort_if(empty($options), 422, 'Tipe pilihan wajib punya minimal satu opsi.');
+            $options = $options ?: null;
+        } else {
+            $options = null;
         }
-
-        $condition = $this->validatedCondition($request, $data['jenjang'], $field);
 
         return [
             'jenjang' => $data['jenjang'],
             'label' => $data['label'],
-            'section' => $data['section'] ? trim($data['section']) : null,
+            'section' => ! empty($data['section']) ? trim($data['section']) : null,
             'type' => $data['type'],
             'options' => $options,
             'is_required' => ! empty($data['is_required']),
-            'sort_order' => $data['sort_order'] ?? 0,
-            ...$condition,
+            'is_active' => ! empty($data['is_active']),
+            'sort_order' => $data['sort_order'] ?? $field?->sort_order ?? 0,
+            ...$this->validatedCondition($request, $data['jenjang'], $field),
         ];
     }
 
-    /**
-     * Validasi kondisi tampil. Pemicu harus: sejenjang, tanpa kondisi sendiri
-     * (mencegah siklus, maksimal 1 level), bukan diri sendiri, bukan tipe file.
-     */
     protected function validatedCondition(Request $request, string $jenjang, ?PpdbFormField $field = null): array
     {
         $triggerKey = $request->input('visible_if_field');
@@ -183,5 +219,64 @@ class PpdbFieldController extends Controller
             'visible_if_operator' => $operator,
             'visible_if_value' => $value,
         ];
+    }
+
+    /**
+     * Hitung jawaban per key untuk pengaman hapus.
+     * @return array<string,int>
+     */
+    protected function answerCounts(string $jenjang): array
+    {
+        $counts = [];
+        PpdbRegistration::where('jenjang', $jenjang)->pluck('answers')->each(function ($answers) use (&$counts) {
+            foreach ((array) $answers as $key => $val) {
+                if ($val !== null && $val !== '' && $val !== []) {
+                    $counts[$key] = ($counts[$key] ?? 0) + 1;
+                }
+            }
+        });
+
+        return $counts;
+    }
+
+    protected function conditionsFor($fields): array
+    {
+        $out = [];
+        foreach ($fields as $f) {
+            if ($f->hasCondition()) {
+                $out[$f->key] = [
+                    'trigger' => $f->visible_if_field,
+                    'op' => $f->visible_if_operator,
+                    'value' => $f->visible_if_value,
+                ];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Jawaban contoh agar pratinjau langsung menunjukkan field kondisional.
+     */
+    protected function sampleAnswers($fields): array
+    {
+        $sample = [];
+        foreach ($fields as $f) {
+            if (! $f->hasCondition()) {
+                continue;
+            }
+            if (array_key_exists($f->visible_if_field, $sample)) {
+                continue;
+            }
+            $sample[$f->visible_if_field] = match ($f->visible_if_operator) {
+                'equals' => is_array($f->visible_if_value) ? ($f->visible_if_value[0] ?? 'Contoh') : ($f->visible_if_value ?? 'Contoh'),
+                'in' => is_array($f->visible_if_value) ? ($f->visible_if_value[0] ?? 'Contoh') : 'Contoh',
+                'filled' => 'Contoh jawaban',
+                'not_equals', 'not_in' => 'Nilai lain',
+                default => null,
+            };
+        }
+
+        return array_filter($sample, fn ($v) => $v !== null);
     }
 }
