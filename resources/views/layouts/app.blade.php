@@ -3,9 +3,26 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Nurul Fikri Balikpapan | Sekolah Islam Terpadu')</title>
+    @php($docTitle = trim($__env->yieldContent('title')) !== '' ? trim($__env->yieldContent('title')).' - Nurul Fikri Balikpapan' : 'Nurul Fikri Balikpapan | Sekolah Islam Terpadu')
+    <title>{!! $docTitle !!}</title>
     <meta name="description" content="@yield('meta', 'Daycare, KBIT, SDIT, dan SMPIT Nurul Fikri Balikpapan yang menumbuhkan generasi qurani yang cerdas dan berkarakter.')">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+
+    {{-- Open Graph / Twitter Card: tampilkan logo saat link dibagikan --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nurul Fikri Balikpapan">
+    <meta property="og:title" content="{!! $docTitle !!}">
+    <meta property="og:description" content="@yield('meta', 'Daycare, KBIT, SDIT, dan SMPIT Nurul Fikri Balikpapan yang menumbuhkan generasi qurani yang cerdas dan berkarakter.')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ url('logo.webp') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Logo Nurul Fikri Balikpapan">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{!! $docTitle !!}">
+    <meta name="twitter:description" content="@yield('meta', 'Daycare, KBIT, SDIT, dan SMPIT Nurul Fikri Balikpapan yang menumbuhkan generasi qurani yang cerdas dan berkarakter.')">
+    <meta name="twitter:image" content="{{ url('logo.webp') }}">
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
