@@ -109,7 +109,10 @@
             </label>
             <div class="grid sm:grid-cols-2 gap-4">
                 <label class="grid gap-1.5 text-sm font-bold">Kelompok/section
-                    <input name="section" value="{{ old('section', $editField->section) }}" placeholder="cth: Kesehatan" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
+                    <input name="section" list="section-list" value="{{ old('section', $editField->section) }}" placeholder="Pilih yang ada atau ketik baru" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
+                    <datalist id="section-list">
+                        @foreach($sections as $s)<option value="{{ $s }}"></option>@endforeach
+                    </datalist>
                 </label>
                 <p class="grid gap-1.5 text-sm font-bold">Tipe
                     <span class="font-normal rounded-xl bg-nf-cream border border-nf-blue/15 px-4 py-2.5 text-nf-ink/60">{{ $types[$editField->type] }} (terkunci)</span>

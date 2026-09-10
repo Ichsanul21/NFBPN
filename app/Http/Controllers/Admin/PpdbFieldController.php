@@ -31,6 +31,7 @@ class PpdbFieldController extends Controller
         return view('admin.fields.studio', [
             'fields' => $fields,
             'jenjang' => $jenjang,
+            'sections' => PpdbFormField::forJenjang($jenjang)->whereNotNull('section')->distinct()->pluck('section')->filter()->values(),
             'jenjangs' => PpdbPeriodController::JENJANGS,
             'types' => PpdbFormField::TYPES,
             'operators' => PpdbFormField::OPERATORS,
