@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+    --font-arabic: 'Amiri', serif;
+
+    --color-nf-green: #8CBF35;
+    --color-nf-green-dark: #6d9a26;
+    --color-nf-green-soft: #eaf4d6;
+    --color-nf-blue: #1B8EC8;
+    --color-nf-blue-dark: #12709f;
+    --color-nf-blue-soft: #dcf0fa;
+    --color-nf-yellow: #F2F1A0;
+    --color-nf-yellow-dark: #d9d75e;
+    --color-nf-ink: #10293E;
+    --color-nf-cream: #F2F7FB;
+    --color-nf-sand: #FBF8E7;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    color: var(--color-nf-ink);
+    background: #fff;
+}
+
+.font-heading { font-family: var(--font-heading); }
+.font-arabic { font-family: var(--font-arabic); }
+
+/* --- Islamic geometric pattern (8-point star lattice, subtle) --- */
+.islamic-pattern {
+    background-color: #1A2E1A;
+    background-image: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.10' stroke-width='1'%3E%3Crect x='22' y='22' width='28' height='28'/%3E%3Crect x='22' y='22' width='28' height='28' transform='rotate(45 36 36)'/%3E%3Ccircle cx='36' cy='36' r='3' fill='%23F2F1A0' fill-opacity='0.35' stroke='none'/%3E%3Ccircle cx='0' cy='0' r='10'/%3E%3Ccircle cx='72' cy='0' r='10'/%3E%3Ccircle cx='0' cy='72' r='10'/%3E%3Ccircle cx='72' cy='72' r='10'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.islamic-pattern-light {
+    background-color: #F7FAF0;
+    background-image: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231B8EC8' stroke-opacity='0.10' stroke-width='1'%3E%3Crect x='22' y='22' width='28' height='28'/%3E%3Crect x='22' y='22' width='28' height='28' transform='rotate(45 36 36)'/%3E%3Ccircle cx='36' cy='36' r='3' fill='%231B8EC8' fill-opacity='0.25' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.islamic-divider {
+    height: 22px;
+    background-image: url("data:image/svg+xml,%3Csvg width='120' height='22' viewBox='0 0 120 22' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231B8EC8' stroke-width='1.4'%3E%3Crect x='52' y='4' width='16' height='16' transform='rotate(45 60 12)' fill='%23F2F1A0'/%3E%3Cline x1='0' y1='12' x2='46' y2='12'/%3E%3Cline x1='74' y1='12' x2='120' y2='12'/%3E%3Ccircle cx='46' cy='12' r='2.4' fill='%231B8EC8' stroke='none'/%3E%3Ccircle cx='74' cy='12' r='2.4' fill='%231B8EC8' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-position: center;
+    opacity: .55;
+}
+
+/* --- rotating hero words --- */
+@keyframes heroWordIn {
+    0% { opacity: 0; transform: translateY(26px); }
+    12% { opacity: 1; transform: translateY(0); }
+    82% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-18px); }
+}
+.hero-word { animation: heroWordIn 5s ease-in-out infinite; }
+
+/* --- reveal on scroll --- */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* --- marquee --- */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 28s linear infinite; }
+
+/* --- float anim --- */
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.animate-floaty { animation: floaty 5s ease-in-out infinite; }
+
+/* --- counter pop --- */
+@keyframes popIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+.pop-in { animation: popIn .5s ease both; }
+
+/* --- watermark "Properti Milik ALENKOSA" --- */
+.watermark-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='440' height='300'%3E%3Ctext x='220' y='150' font-family='Poppins, sans-serif' font-size='24' font-weight='700' fill='%231A2E1A' fill-opacity='0.07' text-anchor='middle' transform='rotate(-18 220 150)'%3EProperti Milik ALENKOSA%3C/text%3E%3C/svg%3E");
+}
