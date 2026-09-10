@@ -17,7 +17,7 @@
         <p class="text-sm text-nf-ink/55">Contoh hasil (simulasi front-end):</p>
         <div class="mt-3 flex items-center gap-3">
             <span class="w-3 h-3 rounded-full bg-nf-yellow-dark animate-pulse"></span>
-            <p class="font-heading font-bold">Menunggu jadwal observasi — tim admisi akan menghubungi via WhatsApp.</p>
+            <p class="font-heading font-bold">Menunggu jadwal observasi. Tim admisi akan menghubungi via WhatsApp.</p>
         </div>
         <div class="mt-4 flex gap-2 text-xs font-bold">
             <span class="rounded-full bg-nf-blue text-white px-3 py-1.5">Formulir diterima</span>

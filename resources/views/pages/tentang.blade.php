@@ -18,8 +18,8 @@
             <div class="islamic-divider my-5"></div>
             <div class="space-y-4 text-nf-ink/75 leading-relaxed">
                 <p>Nurul Fikri Balikpapan adalah lembaga pendidikan Islam terpadu yang memadukan kurikulum nasional dengan pembinaan iman, ibadah, dan akhlak. Berawal dari kepedulian terhadap mutu pendidikan Islam, sekolah ini tumbuh menjadi rujukan orang tua di Balikpapan.</p>
-                <p>Pembelajaran dilaksanakan fullday dengan sistem sentra (PAUD), tematik (SDIT), dan pendalaman mapel plus tahfidz (SMPIT). Setiap siswa dipandang sebagai amanah — berhak berprestasi dan mendapatkan pelayanan terbaik.</p>
-                <p>Kurikulum khas SMART — <strong>Sholeh, Muslih, cerdAs, mandiRi, Terampil</strong> — menjadi kompas seluruh program: dari pembiasaan doa harian hingga riset mini dan pengabdian masyarakat.</p>
+                <p>Pembelajaran dilaksanakan fullday dengan sistem sentra (PAUD), tematik (SDIT), dan pendalaman mapel plus tahfidz (SMPIT). Setiap siswa dipandang sebagai amanah yang berhak berprestasi dan mendapatkan pelayanan terbaik.</p>
+                <p>Kurikulum khas SMART (<strong>Sholeh, Muslih, cerdAs, mandiRi, Terampil</strong>) menjadi kompas seluruh program, dari pembiasaan doa harian hingga riset mini dan pengabdian masyarakat.</p>
             </div>
         </div>
         <div class="grid gap-5">
@@ -65,7 +65,7 @@
             </div>
             @endforeach
         </div>
-        <p class="mt-4 text-xs text-nf-ink/45">* Nama & foto bersifat placeholder — akan diganti data resmi sekolah.</p>
+        <p class="mt-4 text-xs text-nf-ink/45">* Nama & foto bersifat placeholder dan akan diganti data resmi sekolah.</p>
     </div>
 </section>
 @endsection

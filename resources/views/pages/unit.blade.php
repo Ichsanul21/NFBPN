@@ -40,7 +40,7 @@
             <div class="absolute inset-0 islamic-pattern opacity-50"></div>
             <div class="relative">
                 <h3 class="font-heading font-extrabold text-xl">Tertarik dengan {{ $unit['name'] }}?</h3>
-                <p class="mt-2 text-sm text-white/70">Isi formulir PPDB online — pilih jenjang {{ $unit['full'] }}.</p>
+                <p class="mt-2 text-sm text-white/70">Isi formulir PPDB online dan pilih jenjang {{ $unit['full'] }}.</p>
                 <a href="{{ route('ppdb') }}" class="mt-5 block text-center bg-nf-yellow text-nf-ink font-heading font-extrabold px-5 py-3 rounded-full hover:bg-white transition">Daftar {{ $unit['name'] }}</a>
                 <a href="{{ route('kontak') }}" class="mt-2 block text-center border border-white/25 font-heading font-bold text-sm px-5 py-3 rounded-full hover:bg-white/10 transition">Jadwalkan Tur Sekolah</a>
             </div>

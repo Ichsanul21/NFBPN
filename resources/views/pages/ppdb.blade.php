@@ -8,7 +8,7 @@
         <div>
             <p class="text-xs font-bold tracking-[0.25em] uppercase text-nf-yellow">PPDB 2026/2027</p>
             <h1 class="mt-3 font-heading font-extrabold text-3xl md:text-5xl leading-tight">Pendaftaran siswa baru, cukup 10 menit dari rumah.</h1>
-            <p class="mt-4 text-white/70">Isi formulir online — tim admisi menghubungi maksimal 2 hari kerja untuk jadwal observasi/tes pemetaan.</p>
+            <p class="mt-4 text-white/70">Isi formulir online. Tim admisi menghubungi maksimal 2 hari kerja untuk jadwal observasi/tes pemetaan.</p>
             <div class="mt-6 grid grid-cols-3 gap-3 text-center">
                 @foreach([['1','Isi Formulir'],['2','Observasi / Tes'],['3','Daftar Ulang']] as [$n,$t])
                 <div class="rounded-2xl bg-white/8 border border-white/15 p-4">
@@ -36,7 +36,7 @@
 <section id="formulir" class="mx-auto max-w-4xl px-4 sm:px-6 py-12">
     <div id="ppdbFormWrap" class="rounded-3xl border border-nf-blue/25 bg-white shadow-xl p-7 md:p-10">
         <h2 class="font-heading font-extrabold text-2xl">Formulir Pendaftaran</h2>
-        <p class="mt-1 text-sm text-nf-ink/55">Fase 1: front-end saja — data belum tersimpan ke database.</p>
+        <p class="mt-1 text-sm text-nf-ink/55">Fase 1: front-end saja. Data belum tersimpan ke database.</p>
         <form id="ppdbForm" class="mt-6 grid gap-5">
             <div>
                 <h3 class="font-heading font-bold text-nf-blue-dark">A. Jenjang Tujuan</h3>

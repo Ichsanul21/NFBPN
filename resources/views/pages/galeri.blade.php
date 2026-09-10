@@ -7,7 +7,7 @@
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-14 md:py-20">
         <p class="text-xs font-bold tracking-[0.25em] uppercase text-nf-yellow">Dokumentasi</p>
         <h1 class="mt-3 font-heading font-extrabold text-3xl md:text-5xl">Galeri Kegiatan</h1>
-        <p class="mt-4 text-white/70 max-w-2xl">Momen belajar, bermain, dan berprestasi — klik foto untuk melihat lebih besar.</p>
+        <p class="mt-4 text-white/70 max-w-2xl">Momen belajar, bermain, dan berprestasi. Klik foto untuk melihat lebih besar.</p>
     </div>
 </section>
 <section class="mx-auto max-w-7xl px-4 sm:px-6 py-12">
@@ -20,7 +20,7 @@
     <div class="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         @foreach($gallery as $g)
         @php $h = [1,4,7,10]; $tall = in_array($g['id'], $h); @endphp
-        <button data-gal-cat="{{ $g['category'] }}" data-gal-title="{{ $g['title'] }} — {{ $g['unit'] }}" data-gal-unit="{{ $g['unit'] }}" data-gal-cat-label="{{ $g['category'] }}"
+        <button data-gal-cat="{{ $g['category'] }}" data-gal-title="{{ $g['title'] }} ({{ $g['unit'] }})" data-gal-unit="{{ $g['unit'] }}" data-gal-cat-label="{{ $g['category'] }}"
             class="group relative rounded-3xl overflow-hidden text-left bg-gradient-to-br {{ $g['id'] % 2 ? 'from-nf-blue-soft to-nf-blue-soft' : 'from-nf-yellow to-nf-blue-soft' }} {{ $tall ? 'row-span-2 min-h-72' : 'min-h-52' }} border border-nf-blue/15 hover:shadow-2xl transition">
             <div class="absolute inset-0 islamic-pattern-light opacity-70"></div>
             <span class="absolute inset-0 grid place-items-center font-heading font-extrabold text-4xl text-nf-ink/15 group-hover:scale-110 transition">{{ $g['id'] }}</span>
@@ -32,7 +32,7 @@
         </button>
         @endforeach
     </div>
-    <p class="mt-6 text-xs text-nf-ink/45">* Placeholder — foto asli kegiatan akan diunggah tim sekolah via admin panel (Fase 2).</p>
+    <p class="mt-6 text-xs text-nf-ink/45">* Placeholder. Foto asli kegiatan akan diunggah tim sekolah via admin panel (Fase 2).</p>
 </section>
 
 <div id="lightbox" class="hidden fixed inset-0 z-[60] bg-nf-ink/90 backdrop-blur-sm p-4">

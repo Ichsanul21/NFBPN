@@ -72,7 +72,7 @@ class PageController extends Controller
                 'title' => 'PPDB Tahun Ajaran 2026/2027 Resmi Dibuka',
                 'date' => '02 Sep 2026',
                 'category' => 'PPDB',
-                'excerpt' => 'Pendaftaran siswa baru Daycare, KBIT, SDIT, dan SMPIT telah dibuka. Kuota tiap jenjang terbatas — amankan kursi lebih awal.',
+                'excerpt' => 'Pendaftaran siswa baru Daycare, KBIT, SDIT, dan SMPIT telah dibuka. Kuota tiap jenjang terbatas. Amankan kursi lebih awal.',
                 'body' => ['Pendaftaran Peserta Didik Baru (PPDB) Nurul Fikri Balikpapan tahun ajaran 2026/2027 resmi dibuka mulai September 2026 untuk seluruh jenjang: Daycare, KBIT, SDIT, dan SMPIT.', 'Orang tua dapat mengisi formulir online pada halaman PPDB, kemudian mengikuti observasi (KBIT/SDIT) atau tes pemetaan (SMPIT). Tim admisi akan menghubungi maksimal 2 hari kerja setelah formulir terkirim.', 'Gelombang awal mendapatkan prioritas jadwal observasi dan potongan biaya formulir. Informasi lengkap tersedia di halaman PPDB atau melalui WhatsApp sekolah.'],
             ],
             [

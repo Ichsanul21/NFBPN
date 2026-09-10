@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Nurul Fikri Balikpapan') — Sekolah Islam Terpadu</title>
-    <meta name="description" content="@yield('meta', 'Daycare, KBIT, SDIT, dan SMPIT Nurul Fikri Balikpapan — menumbuhkan generasi qurani yang cerdas dan berkarakter.')">
+    <title>@yield('title', 'Nurul Fikri Balikpapan | Sekolah Islam Terpadu')</title>
+    <meta name="description" content="@yield('meta', 'Daycare, KBIT, SDIT, dan SMPIT Nurul Fikri Balikpapan yang menumbuhkan generasi qurani yang cerdas dan berkarakter.')">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -106,10 +106,10 @@
                 <div>
                     <h4 class="font-heading font-bold text-nf-yellow tracking-wide text-sm uppercase">Unit</h4>
                     <ul class="mt-4 space-y-2.5 text-sm text-white/75">
-                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','daycare') }}">Daycare — Usia 6 bln–2 th</a></li>
-                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','kbit') }}">KBIT — Usia 2–4 th</a></li>
-                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','sdit') }}">SDIT — Kelas 1–6</a></li>
-                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','smpit') }}">SMPIT — Kelas 7–9</a></li>
+                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','daycare') }}">Daycare, 6 bln–2 th</a></li>
+                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','kbit') }}">KBIT, 2–4 th</a></li>
+                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','sdit') }}">SDIT, 1–6</a></li>
+                        <li><a class="hover:text-nf-yellow transition" href="{{ route('unit','smpit') }}">SMPIT, 7–9</a></li>
                     </ul>
                 </div>
                 <div>
@@ -134,7 +134,7 @@
             </div>
             <div class="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/55">
                 <p>© 2026 Nurul Fikri Balikpapan. Seluruh hak cipta dilindungi.</p>
-                <p>Daycare · KBIT · SDIT · SMPIT — Sekolah Islam Terpadu</p>
+                <p>Sekolah Islam Terpadu: Daycare · KBIT · SDIT · SMPIT</p>
             </div>
         </div>
     </footer>

@@ -3,7 +3,7 @@
 
 @section('content')
 
-{{-- 3. HERO — pattern islami + rotating tagline --}}
+{{-- 3. HERO: pattern islami + rotating tagline --}}
 <section class="relative overflow-hidden bg-nf-ink text-white">
     <div class="absolute inset-0 islamic-pattern opacity-40"></div>
     <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-nf-blue/20 blur-3xl"></div>
@@ -15,7 +15,7 @@
                 Di Nurul Fikri, kami menumbuhkan
                 <span id="heroWords" data-words='@json($heroWords)' class="block mt-2 text-nf-yellow min-h-[2.6em]"></span>
             </h1>
-            <p class="mt-5 text-white/75 max-w-xl leading-relaxed">Sekolah Islam Terpadu di Balikpapan untuk Daycare, KBIT, SDIT, dan SMPIT — memadukan iman, ilmu, dan akhlak dalam setiap langkah anak.</p>
+            <p class="mt-5 text-white/75 max-w-xl leading-relaxed">Sekolah Islam Terpadu di Balikpapan untuk Daycare, KBIT, SDIT, dan SMPIT yang memadukan iman, ilmu, dan akhlak dalam setiap langkah anak.</p>
             <div class="mt-8 flex flex-wrap gap-3">
                 <a href="{{ route('ppdb') }}" class="inline-flex items-center gap-2 bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-bold px-7 py-3.5 rounded-full shadow-xl shadow-nf-blue/30 transition">
                     Info PPDB & Daftar
@@ -65,7 +65,7 @@
     </div>
 </section>
 
-{{-- 4. PESAN SINGKAT — Purpose & Promise --}}
+{{-- 4. PESAN SINGKAT: Purpose & Promise --}}
 <section class="mx-auto max-w-7xl px-4 sm:px-6 py-14 md:py-20">
     <div class="reveal max-w-3xl">
         <p class="text-xs font-bold tracking-[0.25em] uppercase text-nf-blue">Tentang Nurul Fikri Balikpapan</p>
@@ -75,13 +75,13 @@
     <div class="grid md:grid-cols-2 gap-6">
         <div class="reveal rounded-3xl bg-nf-cream border border-nf-blue/20 p-8">
             <p class="text-xs font-bold tracking-widest uppercase text-nf-blue-dark">Tujuan Kami</p>
-            <p class="mt-3 text-lg leading-relaxed text-nf-ink/85">Menumbuhkan generasi yang berani berubah — belajar lewat pengalaman langsung lewat kurikulum yang menantang, sehingga mencintai ilmu dan memberi manfaat bagi sesama.</p>
+            <p class="mt-3 text-lg leading-relaxed text-nf-ink/85">Menumbuhkan generasi yang berani berubah dengan belajar lewat pengalaman langsung dan kurikulum yang menantang, sehingga mencintai ilmu dan memberi manfaat bagi sesama.</p>
         </div>
         <div class="reveal rounded-3xl bg-nf-ink text-white p-8 relative overflow-hidden">
             <div class="absolute inset-0 islamic-pattern opacity-50"></div>
             <div class="relative">
                 <p class="text-xs font-bold tracking-widest uppercase text-nf-yellow">Janji Kami</p>
-                <p class="mt-3 text-lg leading-relaxed text-white/90">Anak adalah pusat dari semua yang kami lakukan — komunitas belajar yang hangat, di mana kesejahteraan, kedekatan, dan tujuan menggerakkan setiap penemuan. Karena pendidikan adalah sebuah petualangan.</p>
+                <p class="mt-3 text-lg leading-relaxed text-white/90">Anak adalah pusat dari semua yang kami lakukan. Inilah komunitas belajar yang hangat, di mana kesejahteraan, kedekatan, dan tujuan menggerakkan setiap penemuan. Karena pendidikan adalah sebuah petualangan.</p>
             </div>
         </div>
     </div>
@@ -230,7 +230,7 @@
             <h2 class="mt-3 font-heading font-extrabold text-2xl md:text-4xl">Telusuri jalan melewati kemungkinan.</h2>
         </div>
         <div class="mt-10 grid md:grid-cols-3 gap-5">
-            @foreach([['01','Mengenal','Selami kurikulum, program tahfidz, dan kehidupan kampus lewat tur sekolah atau brosur digital.','tentang','Pelajari Profil'],['02','Merasakan','Ikuti trial class & observasi agar anak merasakan langsung suasana belajar di kelas.','kontak','Jadwalkan Kunjungan'],['03','Mendaftar','Isi formulir PPDB online dalam 10 menit — tim kami menghubungi maks. 2 hari kerja.','ppdb','Daftar PPDB']] as [$n,$t,$d,$r,$c])
+            @foreach([['01','Mengenal','Selami kurikulum, program tahfidz, dan kehidupan kampus lewat tur sekolah atau brosur digital.','tentang','Pelajari Profil'],['02','Merasakan','Ikuti trial class & observasi agar anak merasakan langsung suasana belajar di kelas.','kontak','Jadwalkan Kunjungan'],['03','Mendaftar','Isi formulir PPDB online dalam 10 menit. Tim kami menghubungi maks. 2 hari kerja.','ppdb','Daftar PPDB']] as [$n,$t,$d,$r,$c])
             <div class="reveal rounded-3xl bg-white border border-nf-blue/20 p-8 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition">
                 <p class="font-heading font-extrabold text-5xl text-nf-blue/30">{{ $n }}</p>
                 <h3 class="mt-2 font-heading font-extrabold text-xl">{{ $t }}</h3>
@@ -250,7 +250,7 @@
         <div class="reveal lg:col-span-2">
             <p class="text-xs font-bold tracking-[0.25em] uppercase text-nf-blue">Agenda Terdekat</p>
             <h2 class="mt-3 font-heading font-extrabold text-2xl md:text-4xl leading-tight">Yang ada di agenda kami.</h2>
-            <p class="mt-4 text-nf-ink/65 leading-relaxed">Jadwal observasi PPDB, tasmi akbar, dan kegiatan sekolah — catat tanggalnya dan sampai jumpa di kampus.</p>
+            <p class="mt-4 text-nf-ink/65 leading-relaxed">Jadwal observasi PPDB, tasmi akbar, dan kegiatan sekolah. Catat tanggalnya dan sampai jumpa di kampus.</p>
             <a href="{{ route('kontak') }}" class="mt-6 inline-flex items-center gap-2 bg-nf-ink text-white font-heading font-bold text-sm px-6 py-3 rounded-full hover:bg-nf-blue-dark transition">Lihat Kalender Lengkap</a>
         </div>
         <div class="lg:col-span-3 grid gap-4">
@@ -304,7 +304,7 @@
         <p class="reveal font-arabic text-3xl text-nf-yellow" dir="rtl">وَقُل رَّبِّ زِدْنِي عِلْمًا</p>
         <p class="reveal mt-2 text-sm text-white/60 italic">“Ya Tuhanku, tambahkanlah kepadaku ilmu.” (QS. Thaha: 114)</p>
         <h2 class="reveal mt-5 font-heading font-extrabold text-3xl md:text-5xl leading-tight">Siap menjadi bagian dari keluarga besar Nurul Fikri?</h2>
-        <p class="reveal mt-4 text-white/70 max-w-xl mx-auto">Kuota PPDB 2026/2027 tiap jenjang terbatas. Isi formulir online — tanpa antre, tanpa ribet.</p>
+        <p class="reveal mt-4 text-white/70 max-w-xl mx-auto">Kuota PPDB 2026/2027 tiap jenjang terbatas. Isi formulir online tanpa antre dan tanpa ribet.</p>
         <div class="reveal mt-8 flex flex-wrap justify-center gap-3">
             <a href="{{ route('ppdb') }}" class="inline-flex items-center gap-2 bg-nf-yellow text-nf-ink font-heading font-extrabold px-8 py-4 rounded-full hover:bg-white transition shadow-xl">Daftar PPDB Sekarang</a>
             <a href="{{ route('ppdb.status') }}" class="inline-flex items-center gap-2 border border-white/25 hover:bg-white/10 font-heading font-bold px-8 py-4 rounded-full transition">Cek Status Pendaftaran</a>
