@@ -55,51 +55,104 @@
         <h2 class="font-heading font-extrabold text-2xl">Formulir Pendaftaran</h2>
         <p class="mt-1 text-sm text-nf-ink/55">Data tersimpan aman dan hanya terlihat oleh tim admisi.</p>
         @if(session('error'))<p class="mt-4 text-sm font-bold text-red-700 bg-red-50 rounded-xl px-4 py-3">{{ session('error') }}</p>@endif
-        <form method="POST" action="{{ route('ppdb.store') }}" enctype="multipart/form-data" class="mt-6 grid gap-6" x-data="ppdbForm(@js($conditionsByJenjang), @js(old('answers', [])))">
+        <form method="POST" action="{{ route('ppdb.store') }}" enctype="multipart/form-data" class="mt-6" x-data="ppdbWizard(@js($conditionsByJenjang), @js(old('answers', [])), @js($periodsByJenjang), '{{ old('period_id') }}')">
             @csrf
             <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-            <div>
-                <h3 class="font-heading font-bold text-nf-blue-dark">A. Periode dan Jenjang</h3>
-                <div class="mt-3 grid sm:grid-cols-2 gap-4">
-                    <label class="grid gap-1.5 text-sm font-bold">Periode
-                        <select name="period_id" x-model="periodId" x-on:change="jenjang = $event.target.selectedOptions[0].dataset.jenjang || 'sdit'" required class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5">
-                            <option value="">Pilih periode</option>
-                            @foreach($periods as $p)
-                            <option value="{{ $p->id }}" data-jenjang="{{ $p->jenjang }}" @selected(old('period_id') == $p->id)>{{ $p->name }} ({{ strtoupper($p->jenjang) }})</option>
-                            @endforeach
-                        </select>
-                    </label>
-                    <label class="grid gap-1.5 text-sm font-bold">Jenjang (otomatis dari periode)
-                        <select name="jenjang_display" disabled class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 bg-nf-cream" x-text="jenjang.toUpperCase()"></select>
-                    </label>
+            <input type="hidden" name="period_id" :value="periodId">
+            @if($errors->any())
+            <div class="mb-5 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-sm font-bold text-red-800">
+                <p>Periksa kembali isian berikut:</p>
+                <ul class="mt-1 list-disc list-inside font-normal">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+            </div>
+            @endif
+            <ol class="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold">
+                <template x-for="(label, i) in ['Jenjang', 'Data Diri', 'Formulir']" :key="label">
+                    <li class="flex items-center gap-1.5" :class="i < 2 ? 'flex-1' : ''">
+                        <span class="flex items-center gap-1.5">
+                            <span class="grid place-items-center w-6 h-6 rounded-full" :class="step > i + 1 ? 'bg-nf-green text-white' : (step === i + 1 ? 'bg-nf-blue text-white' : 'bg-nf-ink/10 text-nf-ink/50')" x-text="i + 1"></span>
+                            <span :class="step === i + 1 ? 'text-nf-ink' : 'text-nf-ink/50'" x-text="label"></span>
+                        </span>
+                        <span x-show="i < 2" class="flex-1 h-0.5 rounded" :class="step > i + 1 ? 'bg-nf-green' : 'bg-nf-ink/10'"></span>
+                    </li>
+                </template>
+            </ol>
+
+            {{-- Langkah 1: pilih jenjang --}}
+            <div data-step="1" x-show="step === 1" class="mt-6">
+                <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 1. Pilih jenjang</h3>
+                <div class="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    @foreach($units as $u)
+                    <button type="button" @click="chooseJenjang('{{ $u['slug'] }}')" class="rounded-2xl border-2 p-4 text-left transition" :class="jenjang === '{{ $u['slug'] }}' ? 'border-nf-blue bg-nf-blue-soft/60 shadow-lg' : 'border-nf-blue/15 bg-white hover:border-nf-blue/50'">
+                        <span class="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-nf-blue to-nf-blue-dark text-white font-heading font-extrabold">{{ $u['initial'] }}</span>
+                        <span class="mt-2 block font-heading font-bold">{{ $u['full'] }}</span>
+                        <span class="block text-xs text-nf-ink/55 mt-0.5">{{ $u['ages'] }}</span>
+                        <span class="mt-2 inline-block text-[11px] font-bold rounded-full px-2.5 py-1" :class="(periodsByJenjang['{{ $u['slug'] }}'] || []).length ? 'bg-nf-green-soft text-nf-green-dark' : 'bg-nf-ink/10 text-nf-ink/50'" x-text="(periodsByJenjang['{{ $u['slug'] }}'] || []).length ? 'Pendaftaran dibuka' : 'Belum dibuka'"></span>
+                    </button>
+                    @endforeach
+                </div>
+                <div class="mt-4" x-show="jenjang !== ''">
+                    <template x-if="(periodsByJenjang[jenjang] || []).length > 1">
+                        <label class="grid gap-1.5 text-sm font-bold">Pilih gelombang
+                            <select x-model="periodId" required class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 bg-white">
+                                <option value="">Pilih gelombang</option>
+                                <template x-for="p in (periodsByJenjang[jenjang] || [])" :key="p.id">
+                                    <option :value="String(p.id)" x-text="p.name"></option>
+                                </template>
+                            </select>
+                        </label>
+                    </template>
+                    <template x-if="(periodsByJenjang[jenjang] || []).length === 1">
+                        <p class="text-sm rounded-2xl bg-nf-green-soft border border-nf-green/30 px-4 py-3 font-bold text-nf-ink">Gelombang <span x-text="(periodsByJenjang[jenjang][0] || {}).name"></span> — otomatis terpilih.</p>
+                    </template>
+                    <template x-if="(periodsByJenjang[jenjang] || []).length === 0">
+                        <p class="text-sm rounded-2xl bg-nf-ink/5 border border-nf-ink/10 px-4 py-3 font-bold text-nf-ink/60">Pendaftaran jenjang ini belum dibuka. Silakan hubungi kami via WhatsApp.</p>
+                    </template>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="button" @click="nextStep()" class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-bold text-sm px-7 py-3 rounded-full transition">Lanjut →</button>
                 </div>
             </div>
-            <div>
-                <h3 class="font-heading font-bold text-nf-blue-dark">B. Data Calon Siswa</h3>
-                <div class="mt-3 grid sm:grid-cols-2 gap-4">
-                    <label class="grid gap-1.5 text-sm font-bold">Nama lengkap<input name="child_name" required value="{{ old('child_name') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Nama anak"></label>
-                    <label class="grid gap-1.5 text-sm font-bold">Tanggal lahir<input name="child_birthdate" required type="date" value="{{ old('child_birthdate') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
-                    <label class="grid gap-1.5 text-sm font-bold">Jenis kelamin
-                        <select name="gender" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5"><option value="">Pilih</option><option @selected(old('gender')==='Laki-laki')>Laki-laki</option><option @selected(old('gender')==='Perempuan')>Perempuan</option></select>
-                    </label>
+
+            {{-- Langkah 2: data anak + ortu --}}
+            <div data-step="2" x-show="step === 2" class="mt-6 grid gap-6" x-cloak>
+                <div>
+                    <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 2. Data calon siswa <span class="text-nf-ink/45 font-normal" x-text="'(' + jenjang.toUpperCase() + ')'"></span></h3>
+                    <div class="mt-3 grid sm:grid-cols-2 gap-4">
+                        <label class="grid gap-1.5 text-sm font-bold">Nama lengkap<input name="child_name" required value="{{ old('child_name') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Nama anak"></label>
+                        <label class="grid gap-1.5 text-sm font-bold">Tanggal lahir<input name="child_birthdate" required type="date" value="{{ old('child_birthdate') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
+                        <label class="grid gap-1.5 text-sm font-bold">Jenis kelamin
+                            <select name="gender" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5"><option value="">Pilih</option><option @selected(old('gender')==='Laki-laki')>Laki-laki</option><option @selected(old('gender')==='Perempuan')>Perempuan</option></select>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-heading font-bold text-nf-blue-dark">Data orang tua</h3>
+                    <div class="mt-3 grid sm:grid-cols-2 gap-4">
+                        <label class="grid gap-1.5 text-sm font-bold">Nama ayah/ibu<input name="parent_name" required value="{{ old('parent_name', auth()->user()->name) }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
+                        <label class="grid gap-1.5 text-sm font-bold">No. WhatsApp<input name="whatsapp" required value="{{ old('whatsapp') }}" placeholder="08xx-xxxx-xxxx" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
+                    </div>
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" @click="step = 1" class="font-heading font-bold text-sm px-6 py-3 rounded-full border border-nf-blue/25 hover:bg-nf-blue-soft transition">← Kembali</button>
+                    <button type="button" @click="nextStep()" class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-bold text-sm px-7 py-3 rounded-full transition">Lanjut →</button>
                 </div>
             </div>
-            <div>
-                <h3 class="font-heading font-bold text-nf-blue-dark">C. Data Orang Tua</h3>
-                <div class="mt-3 grid sm:grid-cols-2 gap-4">
-                    <label class="grid gap-1.5 text-sm font-bold">Nama ayah/ibu<input name="parent_name" required value="{{ old('parent_name', auth()->user()->name) }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
-                    <label class="grid gap-1.5 text-sm font-bold">No. WhatsApp<input name="whatsapp" required value="{{ old('whatsapp') }}" placeholder="08xx-xxxx-xxxx" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
+
+            {{-- Langkah 3: form dinamis --}}
+            <div data-step="3" x-show="step === 3" class="mt-6" x-cloak>
+                @foreach($fieldsByJenjang as $j => $fields)
+                <template x-if="jenjang === '{{ $j }}'">
+                    <div data-jenjang-section="{{ $j }}">
+                        <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 3. Formulir tambahan ({{ strtoupper($j) }})</h3>
+                        @include('pages.partials.ppdb-fields', ['j' => $j, 'fields' => $fields, 'preview' => false])
+                    </div>
+                </template>
+                @endforeach
+                <div class="mt-6 flex justify-between">
+                    <button type="button" @click="step = 2" class="font-heading font-bold text-sm px-6 py-3 rounded-full border border-nf-blue/25 hover:bg-nf-blue-soft transition">← Kembali</button>
+                    <button class="bg-nf-green hover:bg-nf-green-dark text-white font-heading font-extrabold px-7 py-3 rounded-full transition shadow-lg shadow-nf-green/30">Kirim Pendaftaran</button>
                 </div>
             </div>
-            @foreach($fieldsByJenjang as $j => $fields)
-            <template x-if="jenjang === '{{ $j }}'">
-                <div data-jenjang-section="{{ $j }}">
-                    <h3 class="font-heading font-bold text-nf-blue-dark">D. Informasi Tambahan ({{ strtoupper($j) }})</h3>
-                    @include('pages.partials.ppdb-fields', ['j' => $j, 'fields' => $fields, 'preview' => false])
-                </div>
-            </template>
-            @endforeach
-            <button class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-extrabold px-6 py-3.5 rounded-full transition shadow-lg shadow-nf-blue/30">Kirim Pendaftaran</button>
         </form>
     </div>
     @endguest

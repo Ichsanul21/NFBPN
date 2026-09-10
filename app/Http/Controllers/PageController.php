@@ -200,9 +200,15 @@ class PageController extends Controller
             }
         }
 
+        $periodsByJenjang = [];
+        foreach ($periods as $p) {
+            $periodsByJenjang[$p->jenjang][] = ['id' => $p->id, 'name' => $p->name];
+        }
+
         return view('pages.ppdb', [
             'units' => $this->units(),
             'periods' => $periods,
+            'periodsByJenjang' => $periodsByJenjang,
             'fieldsByJenjang' => $fieldsByJenjang,
             'conditionsByJenjang' => $conditionsByJenjang,
         ]);
