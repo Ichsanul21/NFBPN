@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.site')
 @section('title', 'Berita & Kegiatan')
 
 @section('content')
@@ -11,6 +11,9 @@
     </div>
 </section>
 <section class="mx-auto max-w-7xl px-4 sm:px-6 py-12">
+    @if(!count($news))
+    <div class="rounded-3xl bg-white border border-nf-blue/20 p-10 text-center text-nf-ink/60">Belum ada berita yang diterbitkan.</div>
+    @else
     @php $first = $news[0]; $rest = array_slice($news, 1); @endphp
     <a href="{{ route('berita.detail', $first['slug']) }}" class="grid md:grid-cols-2 rounded-3xl overflow-hidden border border-nf-blue/20 bg-nf-cream hover:shadow-2xl transition group">
         <div class="min-h-56 bg-gradient-to-br from-nf-blue-dark to-nf-blue relative overflow-hidden">
@@ -40,5 +43,6 @@
         </a>
         @endforeach
     </div>
+    @endif
 </section>
 @endsection

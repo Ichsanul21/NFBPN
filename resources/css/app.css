@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
 @import 'tailwindcss';
+@plugin "@tailwindcss/forms";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -78,6 +79,20 @@ body {
 /* --- counter pop --- */
 @keyframes popIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
 .pop-in { animation: popIn .5s ease both; }
+
+/* --- CKEditor article typography --- */
+.nf-article h2 { font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; margin: 1.5em 0 .6em; }
+.nf-article h3 { font-family: var(--font-heading); font-weight: 700; font-size: 1.25rem; margin: 1.4em 0 .5em; }
+.nf-article h4 { font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem; margin: 1.2em 0 .5em; }
+.nf-article ul, .nf-article ol { padding-left: 1.5rem; margin: .8em 0; }
+.nf-article ul { list-style: disc; }
+.nf-article ol { list-style: decimal; }
+.nf-article blockquote { border-left: 4px solid var(--color-nf-blue); padding-left: 1rem; color: color-mix(in srgb, var(--color-nf-ink) 75%, transparent); font-style: italic; margin: 1em 0; }
+.nf-article img { border-radius: 1rem; margin: 1em auto; max-width: 100%; height: auto; }
+.nf-article table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: .95rem; }
+.nf-article th, .nf-article td { border: 1px solid color-mix(in srgb, var(--color-nf-blue) 25%, transparent); padding: .5rem .75rem; text-align: left; }
+.nf-article th { background: var(--color-nf-blue-soft); }
+.nf-article a { color: var(--color-nf-blue-dark); font-weight: 700; text-decoration: underline; }
 
 /* --- watermark "Properti Milik ALENKOSA" --- */
 .watermark-overlay {

@@ -2,7 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agenda;
+use App\Models\ContactMessage;
+use App\Models\Gallery;
+use App\Models\News;
+use App\Models\PpdbFormField;
+use App\Models\PpdbPeriod;
+use App\Models\PpdbRegistration;
+use App\Models\Testimonial;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PageController extends Controller
 {
@@ -13,14 +22,14 @@ class PageController extends Controller
                 'slug' => 'daycare',
                 'name' => 'Daycare',
                 'full' => 'Daycare Nurul Fikri',
-                'tagline' => 'Rumah kedua yang aman & penuh kasih untuk si kecil.',
+                'tagline' => 'Rumah kedua yang aman dan penuh kasih untuk si kecil.',
                 'ages' => 'Usia 6 bulan – 2 tahun',
                 'hours' => 'Senin–Jumat, 07.00–17.00 WITA',
                 'ratio' => '1 : 4',
                 'color' => 'green',
                 'initial' => 'DC',
-                'desc' => 'Layanan penitipan anak dengan pengasuh terlatih, rutinitas harian yang menenangkan, stimulasi motorik & bahasa, serta pembiasaan doa dan adab sejak dini.',
-                'features' => ['Pengasuh tersertifikasi & rasio kecil', 'Ruang tidur, bermain & makan terpisah', 'Laporan harian via grup orang tua', 'Stimulasi sensori-motor & bahasa', 'Pembiasaan doa makan, tidur & adab', 'Makanan sehat dari dapur sekolah'],
+                'desc' => 'Layanan penitipan anak dengan pengasuh terlatih, rutinitas harian yang menenangkan, stimulasi motorik dan bahasa, serta pembiasaan doa dan adab sejak dini.',
+                'features' => ['Pengasuh tersertifikasi dan rasio kecil', 'Ruang tidur, bermain dan makan terpisah', 'Laporan harian via grup orang tua', 'Stimulasi sensori-motor dan bahasa', 'Pembiasaan doa makan, tidur dan adab', 'Makanan sehat dari dapur sekolah'],
             ],
             [
                 'slug' => 'kbit',
@@ -33,7 +42,7 @@ class PageController extends Controller
                 'color' => 'blue',
                 'initial' => 'KB',
                 'desc' => 'Program prasekolah berbasis bermain (play-based learning) yang memadukan kurikulum nasional dengan nilai Islami: tahfidz juz 30 awal, doa harian, dan proyek mini STEAM anak usia dini.',
-                'features' => ['Play-based learning & sentra bermain', 'Tahfidz & doa harian yang menyenangkan', 'Motorik kasar-halus & pra-calistung', 'Kunjungan edukatif & cooking class', 'Asesmen perkembangan per semester', 'Transisi mulus menuju SDIT'],
+                'features' => ['Play-based learning dan sentra bermain', 'Tahfidz dan doa harian yang menyenangkan', 'Motorik kasar-halus dan pra-calistung', 'Kunjungan edukatif dan cooking class', 'Asesmen perkembangan per semester', 'Transisi mulus menuju SDIT'],
             ],
             [
                 'slug' => 'sdit',
@@ -46,7 +55,7 @@ class PageController extends Controller
                 'color' => 'green',
                 'initial' => 'SD',
                 'desc' => 'Sekolah dasar fullday yang memadukan IPTEK dan IMTAK: kurikulum nasional yang diperkaya tahfidz, sains project-based, bahasa Inggris-Arab, dan pembinaan karakter SMART (Sholeh, Muslih, cerdAs, mandiRi, Terampil).',
-                'features' => ['Tahfidz bertahap & tasmi berkala', 'Sains & matematika project-based', 'Bahasa Inggris & Arab komunikatif', 'Literasi & klub robotik/koding', 'Shalat berjamaah & mentoring akhlak', 'Ekstrakurikuler: futsal, panahan, pramuka'],
+                'features' => ['Tahfidz bertahap dan tasmi berkala', 'Sains dan matematika project-based', 'Bahasa Inggris dan Arab komunikatif', 'Literasi dan klub robotik/koding', 'Shalat berjamaah dan mentoring akhlak', 'Ekstrakurikuler: futsal, panahan, pramuka'],
             ],
             [
                 'slug' => 'smpit',
@@ -58,111 +67,52 @@ class PageController extends Controller
                 'ratio' => '1 : 22',
                 'color' => 'blue',
                 'initial' => 'SMP',
-                'desc' => 'Jenjang menengah yang menyiapkan kemandirian belajar, kepemimpinan, dan kesiapan SMA favorit: pendalaman tahfidz, riset mini, olimpiade sains, dan program leadership & pengabdian masyarakat.',
-                'features' => ['Tahfidz lanjutan & tahsin intensif', 'Kelas olimpiade MIPA & bahasa', 'Riset mini & science project', 'Leadership, LDKS & OSIS', 'Bimbingan studi lanjut & psikolog', 'Ekstrakurikuler: basket, karya ilmiah, media'],
+                'desc' => 'Jenjang menengah yang menyiapkan kemandirian belajar, kepemimpinan, dan kesiapan SMA favorit: pendalaman tahfidz, riset mini, olimpiade sains, dan program leadership dan pengabdian masyarakat.',
+                'features' => ['Tahfidz lanjutan dan tahsin intensif', 'Kelas olimpiade MIPA dan bahasa', 'Riset mini dan science project', 'Leadership, LDKS dan OSIS', 'Bimbingan studi lanjut dan psikolog', 'Ekstrakurikuler: basket, karya ilmiah, media'],
             ],
         ];
     }
 
-    private function news(): array
+    private function agendaItems(int $limit = 4): array
     {
-        return [
-            [
-                'slug' => 'ppdb-2026-2027-dibuka',
-                'title' => 'PPDB Tahun Ajaran 2026/2027 Resmi Dibuka',
-                'date' => '02 Sep 2026',
-                'category' => 'PPDB',
-                'excerpt' => 'Pendaftaran siswa baru Daycare, KBIT, SDIT, dan SMPIT telah dibuka. Kuota tiap jenjang terbatas. Amankan kursi lebih awal.',
-                'body' => ['Pendaftaran Peserta Didik Baru (PPDB) Nurul Fikri Balikpapan tahun ajaran 2026/2027 resmi dibuka mulai September 2026 untuk seluruh jenjang: Daycare, KBIT, SDIT, dan SMPIT.', 'Orang tua dapat mengisi formulir online pada halaman PPDB, kemudian mengikuti observasi (KBIT/SDIT) atau tes pemetaan (SMPIT). Tim admisi akan menghubungi maksimal 2 hari kerja setelah formulir terkirim.', 'Gelombang awal mendapatkan prioritas jadwal observasi dan potongan biaya formulir. Informasi lengkap tersedia di halaman PPDB atau melalui WhatsApp sekolah.'],
-            ],
-            [
-                'slug' => 'siswa-sdit-juara-olimpiade-sains',
-                'title' => 'Siswa SDIT Raih Juara Olimpiade Sains Tingkat Kota',
-                'date' => '28 Agu 2026',
-                'category' => 'Prestasi',
-                'excerpt' => 'Dua siswa kelas 5 membawa pulang medali emas dan perak Olimpiade Sains tingkat Kota Balikpapan.',
-                'body' => ['Kabar membanggakan datang dari tim olimpiade SDIT Nurul Fikri Balikpapan. Dua siswa kelas 5 meraih medali emas (IPA) dan perak (Matematika) pada Olimpiade Sains tingkat Kota Balikpapan.', 'Capaian ini merupakan hasil pembinaan rutin klub sains setiap pekan serta pendampingan guru pembimbing. Kedua siswa akan mewakili kota ke tingkat provinsi pada bulan berikutnya.', 'Barakallah, semoga menjadi inspirasi bagi seluruh siswa untuk berani berkompetisi dengan akhlak yang baik.'],
-            ],
-            [
-                'slug' => 'tahfidz-camp-smpit',
-                'title' => 'Tahfidz Camp SMPIT: Menguatkan Hafalan & Ukhuwah',
-                'date' => '21 Agu 2026',
-                'category' => 'Kegiatan',
-                'excerpt' => 'Kegiatan 3 hari 2 malam untuk murajaah intensif, tasmi, dan pembinaan karakter di alam terbuka.',
-                'body' => ['SMPIT Nurul Fikri Balikpapan menggelar Tahfidz Camp selama 3 hari 2 malam. Peserta mengikuti halaqah murajaah, setoran tasmi, qiyamul lail bersama, serta outbond yang melatih kerja sama.', 'Selain target hafalan, kegiatan ini menanamkan kemandirian: siswa mengatur jadwal, menjaga amanah kelompok, dan melayani teman satu tenda.', 'Orang tua menerima laporan capaian hafalan tiap peserta pada penutupan kegiatan.'],
-            ],
-            [
-                'slug' => 'kunjungan-edukatif-kbit',
-                'title' => 'KBIT Belajar di Luar Kelas: Kunjungan ke Kebun Hidroponik',
-                'date' => '15 Agu 2026',
-                'category' => 'Kegiatan',
-                'excerpt' => 'Anak-anak KBIT belajar menanam, memanen, dan bersyukur atas rezeki Allah melalui kunjungan edukatif.',
-                'body' => ['Kelompok Bermain (KBIT) mengadakan kunjungan edukatif ke kebun hidroponik. Anak-anak melihat langsung cara menanam sayur, menyiram tanaman, hingga memanen hasilnya.', 'Melalui kegiatan ini, anak belajar kosakata baru, melatih motorik, serta menanamkan rasa syukur atas ciptaan Allah. Hasil panen dibawa pulang untuk dimasak bersama keluarga.', 'Kunjungan edukatif diadakan rutin tiap tema pembelajaran.'],
-            ],
-            [
-                'slug' => 'workshop-parenting',
-                'title' => 'Workshop Parenting: Mendampingi Anak di Era Digital',
-                'date' => '07 Agu 2026',
-                'category' => 'Orang Tua',
-                'excerpt' => 'Ratusan wali murid mengikuti workshop tentang screen time sehat dan komunikasi positif dengan anak.',
-                'body' => ['Sekolah mengundang psikolog anak untuk berbagi strategi praktis: menetapkan screen time sehat, memilih tontonan edukatif, dan membangun komunikasi positif di rumah.', 'Sesi diskusi berlangsung interaktif. Banyak orang tua berbagi pengalaman mendampingi anak belajar di rumah dan menyeimbangkan gawai dengan aktivitas fisik.', 'Materi workshop dibagikan dalam bentuk ringkasan PDF kepada seluruh wali murid.'],
-            ],
-            [
-                'slug' => 'qurban-dan-baksos',
-                'title' => 'Iduladha: Belajar Berbagi Lewat Qurban & Bakti Sosial',
-                'date' => '30 Mei 2026',
-                'category' => 'Kegiatan',
-                'excerpt' => 'Siswa terlibat langsung dari pengumpulan, penyembelihan, hingga distribusi paket qurban ke warga sekitar.',
-                'body' => ['Momentum Iduladha dimanfaatkan sebagai pembelajaran karakter: siswa terlibat dalam pengumpulan hewan qurban, menyaksikan penyembelihan sesuai syariat, mengemas daging, dan mendistribusikannya ke warga sekitar sekolah.', 'Kegiatan ditutup dengan makan bersama dan refleksi tentang makna ikhlas dan berbagi. Total ratusan paket qurban tersalurkan tahun ini.', 'Jazakumullah khairan kepada seluruh orang tua dan donatur yang berpartisipasi.'],
-            ],
-        ];
+        return Agenda::upcoming()->take($limit)->get()->map(fn (Agenda $a) => [
+            'day' => $a->date->format('d'),
+            'month' => $a->date->format('M'),
+            'title' => $a->title,
+            'time' => $a->time_label ?: '-',
+            'place' => $a->place ?: '-',
+        ])->all();
     }
 
-    private function gallery(): array
+    private function newsItems($collection): array
     {
-        $items = [];
-        $cats = ['Kegiatan', 'Tahfidz', 'Sains', 'Olahraga', 'Seni', 'Kunjungan'];
-        for ($i = 1; $i <= 12; $i++) {
-            $items[] = [
-                'id' => $i,
-                'title' => 'Dokumentasi kegiatan ' . $i,
-                'category' => $cats[($i - 1) % count($cats)],
-                'unit' => ['SDIT', 'KBIT', 'SMPIT', 'Daycare'][($i - 1) % 4],
-            ];
-        }
-        return $items;
-    }
-
-    private function agenda(): array
-    {
-        return [
-            ['day' => '12', 'month' => 'Sep', 'title' => 'Observasi PPDB Gelombang 1 (KBIT & SDIT)', 'time' => '08.00 – 12.00 WITA', 'place' => 'Kampus NF Balikpapan'],
-            ['day' => '19', 'month' => 'Sep', 'title' => 'Tes Pemetaan SMPIT + Wawancara Orang Tua', 'time' => '07.30 – 11.30 WITA', 'place' => 'Gedung SMPIT'],
-            ['day' => '26', 'month' => 'Sep', 'title' => 'Tasmi Akbar & Wisuda Tahfidz Semester Ganjil', 'time' => '08.00 – 11.00 WITA', 'place' => 'Aula Utama'],
-            ['day' => '03', 'month' => 'Okt', 'title' => 'Market Day & Pameran Karya Siswa', 'time' => '08.00 – 14.00 WITA', 'place' => 'Lapangan Sekolah'],
-        ];
+        return $collection->map(fn (News $n) => [
+            'slug' => $n->slug,
+            'title' => $n->title,
+            'date' => $n->published_at?->format('d M Y') ?? $n->created_at->format('d M Y'),
+            'category' => $n->category?->name ?? 'Berita',
+            'excerpt' => $n->excerpt ?: Str::limit(strip_tags($n->body), 140),
+        ])->all();
     }
 
     public function home()
     {
         $units = $this->units();
-        $news = array_slice($this->news(), 0, 5);
+        $news = $this->newsItems(News::with('category')->published()->latest('published_at')->take(5)->get());
+        $testimonials = Testimonial::published()->take(3)->get()
+            ->map(fn ($t) => ['quote' => $t->quote, 'name' => $t->name, 'role' => $t->role])->all();
+
         return view('pages.home', [
             'units' => $units,
             'news' => $news,
-            'gallery' => array_slice($this->gallery(), 0, 6),
-            'agenda' => $this->agenda(),
+            'agenda' => $this->agendaItems(4),
             'stats' => [
                 ['value' => 850, 'suffix' => '+', 'label' => 'Siswa aktif 4 jenjang'],
-                ['value' => 78, 'suffix' => '', 'label' => 'Guru & pengasuh'],
+                ['value' => 78, 'suffix' => '', 'label' => 'Guru dan pengasuh'],
                 ['value' => 18, 'suffix' => '', 'label' => 'Tahun mengabdi'],
                 ['value' => 120, 'suffix' => '+', 'label' => 'Prestasi siswa'],
             ],
-            'testimonials' => [
-                ['quote' => 'Anak saya yang pemalu jadi berani tampil. Gurunya sabar dan selalu update perkembangan lewat laporan harian.', 'name' => 'Bunda Rahma', 'role' => 'Wali murid KBIT'],
-                ['quote' => 'Program tahfidznya terstruktur. Anak setoran rutin dan kami sebagai orang tua dilibatkan lewat tasmi bersama.', 'name' => 'Pak Hendra', 'role' => 'Wali murid SDIT'],
-                ['quote' => 'Di SMPIT saya belajar mandiri dan ikut riset mini. Sekarang lanjut ke SMA favorit dengan beasiswa.', 'name' => 'Nadia', 'role' => 'Alumni SMPIT'],
-            ],
+            'testimonials' => $testimonials,
             'heroWords' => [
                 "Menumbuhkan generasi qur'ani yang cerdas dan berkarakter.",
                 'Bermain, belajar, dan tumbuh dalam nilai-nilai Islami.',
@@ -187,39 +137,176 @@ class PageController extends Controller
     {
         $unit = collect($this->units())->firstWhere('slug', $slug);
         abort_if(! $unit, 404);
+
         return view('pages.unit', ['unit' => $unit, 'units' => $this->units()]);
     }
 
     public function berita()
     {
-        return view('pages.berita', ['news' => $this->news()]);
+        $news = $this->newsItems(News::with('category')->published()->latest('published_at')->get());
+
+        return view('pages.berita', ['news' => $news]);
     }
 
     public function beritaDetail(string $slug)
     {
-        $item = collect($this->news())->firstWhere('slug', $slug);
-        abort_if(! $item, 404);
-        $others = collect($this->news())->where('slug', '!=', $slug)->take(3)->all();
-        return view('pages.berita-detail', ['item' => $item, 'others' => $others]);
+        $model = News::with('category')->where('slug', $slug)->published()->firstOrFail();
+        $item = [
+            'title' => $model->title,
+            'date' => $model->published_at->format('d M Y'),
+            'category' => $model->category?->name ?? 'Berita',
+            'excerpt' => $model->excerpt ?: Str::limit(strip_tags($model->body), 160),
+            'body_html' => $model->body,
+            'cover' => $model->cover_path ? asset('storage/'.$model->cover_path) : null,
+        ];
+        $others = $this->newsItems(
+            News::with('category')->published()->where('id', '!=', $model->id)->latest('published_at')->take(3)->get()
+        );
+
+        return view('pages.berita-detail', compact('item', 'others'));
     }
 
     public function galeri()
     {
-        return view('pages.galeri', ['gallery' => $this->gallery()]);
+        $gallery = Gallery::latest()->take(24)->get()->map(fn (Gallery $g) => [
+            'id' => $g->id,
+            'title' => $g->title,
+            'category' => $g->category,
+            'unit' => $g->unit ?: 'Umum',
+            'src' => $g->url(),
+        ])->all();
+
+        return view('pages.galeri', ['gallery' => $gallery]);
     }
 
     public function ppdb()
     {
-        return view('pages.ppdb', ['units' => $this->units()]);
+        $periods = PpdbPeriod::active()->orderBy('starts_on')->get()
+            ->filter(fn ($p) => $p->isOpen());
+
+        $fieldsByJenjang = [];
+        foreach (['daycare', 'kbit', 'sdit', 'smpit'] as $j) {
+            $fieldsByJenjang[$j] = PpdbFormField::forJenjang($j)->ordered()->get();
+        }
+
+        return view('pages.ppdb', [
+            'units' => $this->units(),
+            'periods' => $periods,
+            'fieldsByJenjang' => $fieldsByJenjang,
+        ]);
     }
 
-    public function ppdbStatus()
+    public function ppdbStore(Request $request)
     {
-        return view('pages.ppdb-status');
+        if ($request->filled('website')) {
+            abort(403);
+        }
+
+        $period = PpdbPeriod::findOrFail($request->input('period_id'));
+        abort_unless($period->isOpen(), 403, 'Periode pendaftaran tidak aktif.');
+        $jenjang = $period->jenjang;
+
+        $exists = PpdbRegistration::where('user_id', auth()->id())
+            ->where('period_id', $period->id)->exists();
+        if ($exists) {
+            return back()->with('error', 'Anda sudah terdaftar pada periode ini. Pantau statusnya di portal orang tua.')->withInput();
+        }
+
+        $rules = [
+            'period_id' => 'required|exists:ppdb_periods,id',
+            'child_name' => 'required|string|max:255',
+            'child_birthdate' => 'required|date|before:today',
+            'gender' => 'nullable|in:Laki-laki,Perempuan',
+            'parent_name' => 'required|string|max:255',
+            'whatsapp' => 'required|string|max:20',
+        ];
+        $fields = PpdbFormField::forJenjang($jenjang)->ordered()->get();
+        foreach ($fields as $f) {
+            $key = "answers.{$f->key}";
+            $base = match ($f->type) {
+                'number' => 'numeric',
+                'date' => 'date',
+                'file' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+                'checkbox' => 'array',
+                default => 'string|max:2000',
+            };
+            $rules[$key] = ($f->is_required ? 'required' : 'nullable').'|'.$base;
+            if (in_array($f->type, ['select', 'radio'], true) && $f->options) {
+                $rules[$key] .= '|in:'.implode(',', $f->options);
+            }
+            if ($f->type === 'checkbox' && $f->options) {
+                $rules[$key.'.'] = 'in:'.implode(',', $f->options);
+            }
+        }
+
+        $data = $request->validate($rules);
+
+        $answers = $data['answers'] ?? [];
+        foreach ($fields as $f) {
+            if ($f->type === 'file' && $request->hasFile("answers.{$f->key}")) {
+                $answers[$f->key] = $request->file("answers.{$f->key}")->store('ppdb/berkas', 'public');
+            }
+        }
+
+        do {
+            $no = 'NF-'.now()->format('Y').'-'.str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (PpdbRegistration::where('registration_no', $no)->exists());
+
+        $reg = PpdbRegistration::create([
+            'registration_no' => $no,
+            'period_id' => $period->id,
+            'user_id' => auth()->id(),
+            'jenjang' => $jenjang,
+            'child_name' => $data['child_name'],
+            'child_birthdate' => $data['child_birthdate'],
+            'gender' => $data['gender'] ?? null,
+            'parent_name' => $data['parent_name'],
+            'whatsapp' => $data['whatsapp'],
+            'answers' => $answers,
+            'status' => 'terkirim',
+        ]);
+
+        if (! auth()->user()->hasRole('orang-tua')) {
+            auth()->user()->assignRole('orang-tua');
+        }
+
+        return redirect()->route('portal.show', $reg)
+            ->with('success', 'Pendaftaran terkirim. Nomor registrasi Anda: '.$no);
+    }
+
+    public function ppdbStatus(Request $request)
+    {
+        $result = null;
+        if ($request->filled(['no', 'tgl'])) {
+            $result = PpdbRegistration::with('histories')
+                ->where('registration_no', $request->input('no'))
+                ->whereDate('child_birthdate', $request->input('tgl'))
+                ->first();
+        }
+
+        return view('pages.ppdb-status', ['result' => $result]);
     }
 
     public function kontak()
     {
-        return view('pages.kontak', ['agenda' => $this->agenda()]);
+        return view('pages.kontak', ['agenda' => $this->agendaItems(4)]);
+    }
+
+    public function kontakStore(Request $request)
+    {
+        if ($request->filled('website')) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'whatsapp' => 'nullable|string|max:20',
+            'subject' => 'nullable|string|max:255',
+            'message' => 'required|string|max:2000',
+        ]);
+
+        ContactMessage::create($data);
+
+        return back()->with('success', 'Pesan terkirim. Tim kami akan menghubungi Anda di jam operasional.');
     }
 }

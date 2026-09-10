@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.site')
 @section('title', 'Kontak')
 
 @section('content')
@@ -13,17 +13,19 @@
 <section class="mx-auto max-w-7xl px-4 sm:px-6 py-12 grid lg:grid-cols-2 gap-8">
     <div class="rounded-3xl border border-nf-blue/25 bg-white shadow-xl p-7 md:p-9">
         <h2 class="font-heading font-extrabold text-2xl">Kirim pesan</h2>
-        <form class="mt-5 grid gap-4" onsubmit="event.preventDefault(); this.reset(); document.getElementById('kontakOk').classList.remove('hidden');">
+        <form method="POST" action="{{ route('kontak.store') }}" class="mt-5 grid gap-4">
+            @csrf
+            <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+            @if(session('success'))<p class="text-sm font-bold text-nf-blue-dark bg-nf-blue-soft rounded-xl px-4 py-3">{{ session('success') }}</p>@endif
             <div class="grid sm:grid-cols-2 gap-4">
-                <label class="grid gap-1.5 text-sm font-bold">Nama<input required class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Nama Anda"></label>
-                <label class="grid gap-1.5 text-sm font-bold">No. WhatsApp<input required type="tel" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="08xx-xxxx-xxxx"></label>
+                <label class="grid gap-1.5 text-sm font-bold">Nama<input name="name" required value="{{ old('name') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Nama Anda"></label>
+                <label class="grid gap-1.5 text-sm font-bold">No. WhatsApp<input name="whatsapp" required type="tel" value="{{ old('whatsapp') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="08xx-xxxx-xxxx"></label>
             </div>
             <label class="grid gap-1.5 text-sm font-bold">Keperluan
-                <select class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5"><option>Info PPDB</option><option>Tur sekolah</option><option>Kerja sama</option><option>Lainnya</option></select>
+                <select name="subject" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5"><option>Info PPDB</option><option>Tur sekolah</option><option>Kerja sama</option><option>Lainnya</option></select>
             </label>
-            <label class="grid gap-1.5 text-sm font-bold">Pesan<textarea required rows="4" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Tulis pesan Anda..."></textarea></label>
+            <label class="grid gap-1.5 text-sm font-bold">Pesan<textarea name="message" required rows="4" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Tulis pesan Anda...">{{ old('message') }}</textarea></label>
             <button class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-extrabold px-6 py-3 rounded-full transition">Kirim Pesan</button>
-            <p id="kontakOk" class="hidden text-sm font-bold text-nf-blue-dark bg-nf-blue-soft rounded-xl px-4 py-3">Pesan terkirim (simulasi). Tim kami akan menghubungi Anda.</p>
         </form>
     </div>
     <div class="grid gap-5 content-start">

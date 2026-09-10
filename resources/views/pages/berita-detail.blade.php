@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.site')
 @section('title', $item['title'])
 
 @section('content')
@@ -14,12 +14,16 @@
     </div>
 </section>
 <section class="mx-auto max-w-3xl px-4 sm:px-6 py-10">
-    <div class="h-64 rounded-3xl bg-gradient-to-br from-nf-blue to-nf-blue relative overflow-hidden">
-        <div class="absolute inset-0 islamic-pattern opacity-40"></div>
-        <span class="absolute bottom-4 left-5 text-xs font-bold text-white/80 bg-black/25 rounded-full px-3 py-1.5">Foto ilustrasi. Akan diganti dokumentasi asli</span>
+    @if($item['cover'])
+    <img src="{{ $item['cover'] }}" alt="{{ $item['title'] }}" class="w-full max-h-96 object-cover rounded-3xl">
+    @else
+    <div class="h-64 rounded-3xl bg-gradient-to-br from-nf-blue to-nf-blue-dark relative overflow-hidden">
+        <div class="absolute inset-0 islamic-pattern opacity-30"></div>
+        <span class="absolute bottom-4 left-5 font-heading font-extrabold text-white/40 text-5xl">NF</span>
     </div>
-    <article class="mt-8 space-y-5 text-lg leading-relaxed text-nf-ink/85">
-        @foreach($item['body'] as $p)<p>{{ $p }}</p>@endforeach
+    @endif
+    <article class="mt-8 text-lg leading-relaxed text-nf-ink/85 space-y-4 nf-article">
+        {!! $item['body_html'] !!}
     </article>
     <div class="islamic-divider my-10"></div>
     <h2 class="font-heading font-extrabold text-xl">Berita lainnya</h2>
