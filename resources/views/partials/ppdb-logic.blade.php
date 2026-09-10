@@ -78,10 +78,12 @@
                 this.periodId = list.length === 1 ? String(list[0].id) : '';
             },
             nextStep() {
-                if (this.step === 1) {
+                // Langkah 2 = pilih jenjang (butuh jenjang + gelombang).
+                // Langkah lain = validasi generik semua input pada step aktif.
+                if (this.step === 2) {
                     if (!this.jenjang) return;
                     if (!this.periodId) {
-                        const box = this.$el.querySelector('[data-step="1"]');
+                        const box = this.$el.querySelector('[data-step="2"]');
                         const sel = box && box.querySelector('select');
                         if (sel) { sel.reportValidity(); }
                         return;
@@ -96,8 +98,8 @@
                     }
                 }
                 this.step++;
-                const top = this.$el.closest('section');
-                if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const top = this.$el.closest && this.$el.closest('section');
+                if (top && top.scrollIntoView) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
             },
             isVisible(j, key) { return isVisible(conditions, this.answers, j, key); },
             sync(key, el) { sync(this, key, el); }
