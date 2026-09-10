@@ -60,17 +60,8 @@
             </div>
             @endforeach
         </div>
-        <div class="mt-8 rounded-2xl bg-nf-ink text-white p-6 text-center relative overflow-hidden">
-            <div class="absolute inset-0 islamic-pattern opacity-30"></div>
-            <p class="relative font-heading font-extrabold text-lg">Masuk untuk mengisi formulir.</p>
-            <p class="relative mt-1 text-sm text-white/70">Buat akun orang tua gratis agar status pendaftaran terpantau di portal.</p>
-            <div class="relative mt-5 flex flex-wrap justify-center gap-3">
-                <a href="{{ route('login') }}" class="bg-nf-yellow text-nf-ink font-heading font-extrabold px-7 py-3 rounded-full hover:bg-white transition">Masuk</a>
-                <a href="{{ route('register') }}" class="border border-white/30 hover:bg-white/10 font-heading font-bold px-7 py-3 rounded-full transition">Buat Akun</a>
-            </div>
-        </div>
     </div>
-    @else
+    @endguest
     <div class="rounded-3xl border border-nf-blue/25 bg-white shadow-xl p-7 md:p-10">
         <h2 class="font-heading font-extrabold text-2xl">Formulir Pendaftaran</h2>
         <p class="mt-1 text-sm text-nf-ink/55">Data tersimpan aman dan hanya terlihat oleh tim admisi.</p>
@@ -86,7 +77,7 @@
             </div>
             @endif
             <ol class="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold">
-                <template x-for="(label, i) in ['Jenjang', 'Data Diri', 'Formulir']" :key="label">
+                <template x-for="(label, i) in ['Akun', 'Jenjang', 'Formulir']" :key="label">
                     <li class="flex items-center gap-1.5" :class="i < 2 ? 'flex-1' : ''">
                         <span class="flex items-center gap-1.5">
                             <span class="grid place-items-center w-6 h-6 rounded-full" :class="step > i + 1 ? 'bg-nf-green text-white' : (step === i + 1 ? 'bg-nf-blue text-white' : 'bg-nf-ink/10 text-nf-ink/50')" x-text="i + 1"></span>
@@ -97,9 +88,35 @@
                 </template>
             </ol>
 
-            {{-- Langkah 1: pilih jenjang --}}
+            {{-- Langkah 1: akun orang tua --}}
             <div data-step="1" x-show="step === 1" class="mt-6">
-                <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 1. Pilih jenjang</h3>
+                @guest
+                <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 1. Data dan akun orang tua</h3>
+                <p class="mt-1 text-sm text-nf-ink/60">Akun dibuat otomatis saat formulir dikirim. Sudah punya akun? <a href="{{ route('login') }}" class="font-bold text-nf-blue-dark underline">Masuk dulu</a>.</p>
+                <div class="mt-3 grid sm:grid-cols-2 gap-4">
+                    <label class="grid gap-1.5 text-sm font-bold">Nama ayah/ibu<input name="parent_name" required value="{{ old('parent_name') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Nama lengkap Anda"></label>
+                    <label class="grid gap-1.5 text-sm font-bold">Email (untuk masuk portal)<input name="email" required type="email" value="{{ old('email') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="nama@email.com"></label>
+                    <label class="grid gap-1.5 text-sm font-bold">No. WhatsApp<input name="whatsapp" required value="{{ old('whatsapp') }}" placeholder="08xx-xxxx-xxxx" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
+                    <label class="grid gap-1.5 text-sm font-bold">Kata sandi (min. 8 karakter)<input name="password" required type="password" minlength="8" autocomplete="new-password" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
+                    <label class="grid gap-1.5 text-sm font-bold sm:col-span-2">Ulangi kata sandi<input name="password_confirmation" required type="password" minlength="8" autocomplete="new-password" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
+                </div>
+                @else
+                <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 1. Akun orang tua</h3>
+                <div class="mt-3 flex flex-wrap items-center gap-3 rounded-2xl bg-nf-green-soft border border-nf-green/30 px-5 py-4">
+                    <span class="grid place-items-center w-10 h-10 rounded-full bg-nf-green text-white font-heading font-bold">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
+                    <p class="text-sm"><span class="font-bold">Masuk sebagai {{ auth()->user()->name }}</span><span class="block text-nf-ink/60">{{ auth()->user()->email }}</span></p>
+                    <a href="{{ route('portal.index') }}" class="ml-auto text-xs font-bold text-nf-blue-dark hover:underline">Lihat portal saya →</a>
+                </div>
+                @endguest
+                <div class="mt-6 flex justify-end">
+                    <button type="button" @click="nextStep()" class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-bold text-sm px-7 py-3 rounded-full transition">Lanjut →</button>
+                </div>
+            </div>
+
+            {{-- Langkah 2: pilih jenjang --}}
+            <div data-step="2" x-show="step === 2" class="mt-6" x-cloak>
+                <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 2. Pilih jenjang</h3>
+                <p class="mt-1 text-sm text-nf-ink/60">Gelombang pendaftaran mengikuti jenjang yang dipilih.</p>
                 <div class="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-3">
                     @foreach($units as $u)
                     <button type="button" @click="chooseJenjang('{{ $u['slug'] }}')" class="rounded-2xl border-2 p-4 text-left transition" :class="jenjang === '{{ $u['slug'] }}' ? 'border-nf-blue bg-nf-blue-soft/60 shadow-lg' : 'border-nf-blue/15 bg-white hover:border-nf-blue/50'">
@@ -128,15 +145,16 @@
                         <p class="text-sm rounded-2xl bg-nf-ink/5 border border-nf-ink/10 px-4 py-3 font-bold text-nf-ink/60">Pendaftaran jenjang ini belum dibuka. Silakan hubungi kami via WhatsApp.</p>
                     </template>
                 </div>
-                <div class="mt-6 flex justify-end">
+                <div class="mt-6 flex justify-between">
+                    <button type="button" @click="step = 1" class="font-heading font-bold text-sm px-6 py-3 rounded-full border border-nf-blue/25 hover:bg-nf-blue-soft transition">← Kembali</button>
                     <button type="button" @click="nextStep()" class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-bold text-sm px-7 py-3 rounded-full transition">Lanjut →</button>
                 </div>
             </div>
 
-            {{-- Langkah 2: data anak + ortu --}}
-            <div data-step="2" x-show="step === 2" class="mt-6 grid gap-6" x-cloak>
+            {{-- Langkah 3: data anak + formulir lengkap --}}
+            <div data-step="3" x-show="step === 3" class="mt-6 grid gap-6" x-cloak>
                 <div>
-                    <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 2. Data calon siswa <span class="text-nf-ink/45 font-normal" x-text="'(' + jenjang.toUpperCase() + ')'"></span></h3>
+                    <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 3. Data calon siswa <span class="text-nf-ink/45 font-normal" x-text="'(' + jenjang.toUpperCase() + ')'"></span></h3>
                     <div class="mt-3 grid sm:grid-cols-2 gap-4">
                         <label class="grid gap-1.5 text-sm font-bold">Nama lengkap<input name="child_name" required value="{{ old('child_name') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue" placeholder="Nama anak"></label>
                         <label class="grid gap-1.5 text-sm font-bold">Tanggal lahir<input name="child_birthdate" required type="date" value="{{ old('child_birthdate') }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
@@ -145,25 +163,19 @@
                         </label>
                     </div>
                 </div>
+                @auth
                 <div>
-                    <h3 class="font-heading font-bold text-nf-blue-dark">Data orang tua</h3>
+                    <h3 class="font-heading font-bold text-nf-blue-dark">Kontak orang tua</h3>
                     <div class="mt-3 grid sm:grid-cols-2 gap-4">
                         <label class="grid gap-1.5 text-sm font-bold">Nama ayah/ibu<input name="parent_name" required value="{{ old('parent_name', auth()->user()->name) }}" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
                         <label class="grid gap-1.5 text-sm font-bold">No. WhatsApp<input name="whatsapp" required value="{{ old('whatsapp') }}" placeholder="08xx-xxxx-xxxx" class="font-normal rounded-xl border border-nf-blue/25 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-nf-blue"></label>
                     </div>
                 </div>
-                <div class="flex justify-between">
-                    <button type="button" @click="step = 1" class="font-heading font-bold text-sm px-6 py-3 rounded-full border border-nf-blue/25 hover:bg-nf-blue-soft transition">← Kembali</button>
-                    <button type="button" @click="nextStep()" class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-bold text-sm px-7 py-3 rounded-full transition">Lanjut →</button>
-                </div>
-            </div>
-
-            {{-- Langkah 3: form dinamis --}}
-            <div data-step="3" x-show="step === 3" class="mt-6" x-cloak>
+                @endauth
                 @foreach($fieldsByJenjang as $j => $fields)
                 <template x-if="jenjang === '{{ $j }}'">
                     <div data-jenjang-section="{{ $j }}">
-                        <h3 class="font-heading font-bold text-nf-blue-dark">Langkah 3. Formulir tambahan ({{ strtoupper($j) }})</h3>
+                        <h3 class="font-heading font-bold text-nf-blue-dark">Formulir tambahan ({{ strtoupper($j) }})</h3>
                         @include('pages.partials.ppdb-fields', ['j' => $j, 'fields' => $fields, 'preview' => false])
                     </div>
                 </template>
@@ -175,6 +187,5 @@
             </div>
         </form>
     </div>
-    @endguest
 </section>
 @endsection

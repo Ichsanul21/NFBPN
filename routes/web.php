@@ -14,7 +14,7 @@ Route::get('/berita/{slug}', [PageController::class, 'beritaDetail'])->name('ber
 Route::get('/galeri', [PageController::class, 'galeri'])->name('galeri');
 Route::get('/ppdb', [PageController::class, 'ppdb'])->name('ppdb');
 Route::post('/ppdb', [PageController::class, 'ppdbStore'])
-    ->middleware(['auth', 'throttle:10,1'])->name('ppdb.store');
+    ->middleware('throttle:10,1')->name('ppdb.store');
 Route::get('/ppdb/status', [PageController::class, 'ppdbStatus'])->name('ppdb.status');
 Route::get('/kontak', [PageController::class, 'kontak'])->name('kontak');
 Route::post('/kontak', [PageController::class, 'kontakStore'])

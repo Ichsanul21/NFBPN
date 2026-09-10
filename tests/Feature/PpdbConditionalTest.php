@@ -178,4 +178,47 @@ class PpdbConditionalTest extends TestCase
         $res->assertOk();
         $res->assertDontSee('name="answers[transportasi]"', false);
     }
+
+    public function test_guest_submit_creates_account_and_registration(): void
+    {
+        $res = $this->post('/ppdb', [
+            'parent_name' => 'Ortu Baru',
+            'email' => 'baru@example.com',
+            'whatsapp' => '081222333444',
+            'password' => 'rahasia123',
+            'password_confirmation' => 'rahasia123',
+            'period_id' => $this->period->id,
+            'child_name' => 'Anak Baru',
+            'child_birthdate' => '2019-06-06',
+            'answers' => ['transportasi' => 'Antar jemput'],
+        ]);
+
+        $user = User::where('email', 'baru@example.com')->first();
+        $this->assertNotNull($user);
+        $this->assertTrue($user->hasRole('orang-tua'));
+        $this->assertAuthenticatedAs($user);
+        $reg = PpdbRegistration::where('child_name', 'Anak Baru')->first();
+        $this->assertNotNull($reg);
+        $this->assertSame($user->id, $reg->user_id);
+        $res->assertRedirect(route('portal.show', $reg));
+    }
+
+    public function test_guest_duplicate_email_rejected(): void
+    {
+        $res = $this->post('/ppdb', [
+            'parent_name' => 'Siapa',
+            'email' => $this->ortu->email,
+            'whatsapp' => '081222333444',
+            'password' => 'rahasia123',
+            'password_confirmation' => 'rahasia123',
+            'period_id' => $this->period->id,
+            'child_name' => 'Anak X',
+            'child_birthdate' => '2019-06-06',
+            'answers' => ['transportasi' => 'Antar jemput'],
+        ]);
+
+        $res->assertSessionHasErrors('email');
+        $this->assertGuest();
+        $this->assertSame(0, PpdbRegistration::where('child_name', 'Anak X')->count());
+    }
 }

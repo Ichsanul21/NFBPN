@@ -10,8 +10,12 @@ use App\Models\PpdbFormField;
 use App\Models\PpdbPeriod;
 use App\Models\PpdbRegistration;
 use App\Models\Testimonial;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class PageController extends Controller
 {
@@ -224,20 +228,23 @@ class PageController extends Controller
         abort_unless($period->isOpen(), 403, 'Periode pendaftaran tidak aktif.');
         $jenjang = $period->jenjang;
 
-        $exists = PpdbRegistration::where('user_id', auth()->id())
-            ->where('period_id', $period->id)->exists();
-        if ($exists) {
-            return back()->with('error', 'Anda sudah terdaftar pada periode ini. Pantau statusnya di portal orang tua.')->withInput();
-        }
+        $user = auth()->user();
 
         $rules = [
             'period_id' => 'required|exists:ppdb_periods,id',
             'child_name' => 'required|string|max:255',
             'child_birthdate' => 'required|date|before:today',
             'gender' => 'nullable|in:Laki-laki,Perempuan',
-            'parent_name' => 'required|string|max:255',
-            'whatsapp' => 'required|string|max:20',
         ];
+        if ($user) {
+            $rules['parent_name'] = 'required|string|max:255';
+            $rules['whatsapp'] = 'required|string|max:20';
+        } else {
+            $rules['parent_name'] = 'required|string|max:255';
+            $rules['email'] = 'required|email|max:255|unique:users,email';
+            $rules['whatsapp'] = 'required|string|max:20';
+            $rules['password'] = 'required|string|min:8|confirmed';
+        }
         $fields = PpdbFormField::forJenjang($jenjang)->active()->ordered()->get();
         $submitted = $request->input('answers', []);
         $visible = $fields->filter(fn ($f) => $f->isVisibleFor($submitted))->values();
@@ -259,7 +266,27 @@ class PageController extends Controller
             }
         }
 
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'email.unique' => 'Email ini sudah terdaftar. Silakan masuk dulu, lalu isi formulir.',
+        ]);
+
+        if (! $user) {
+            $user = User::create([
+                'name' => $data['parent_name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+            ]);
+            if (Role::where('name', 'orang-tua')->exists()) {
+                $user->assignRole('orang-tua');
+            }
+            Auth::login($user);
+        }
+
+        $exists = PpdbRegistration::where('user_id', $user->id)
+            ->where('period_id', $period->id)->exists();
+        if ($exists) {
+            return back()->with('error', 'Anda sudah terdaftar pada periode ini. Pantau statusnya di portal orang tua.')->withInput();
+        }
 
         $answers = $data['answers'] ?? [];
         foreach ($visible as $f) {
@@ -275,7 +302,7 @@ class PageController extends Controller
         $reg = PpdbRegistration::create([
             'registration_no' => $no,
             'period_id' => $period->id,
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
             'jenjang' => $jenjang,
             'child_name' => $data['child_name'],
             'child_birthdate' => $data['child_birthdate'],
@@ -286,8 +313,8 @@ class PageController extends Controller
             'status' => 'terkirim',
         ]);
 
-        if (! auth()->user()->hasRole('orang-tua')) {
-            auth()->user()->assignRole('orang-tua');
+        if (! $user->hasRole('orang-tua') && Role::where('name', 'orang-tua')->exists()) {
+            $user->assignRole('orang-tua');
         }
 
         return redirect()->route('portal.show', $reg)
