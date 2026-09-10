@@ -261,4 +261,5 @@ function addOptRow() {
     });
 })();
 </script>
+@include('partials.ppdb-logic')
 @endpush

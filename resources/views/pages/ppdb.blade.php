@@ -65,6 +65,9 @@
     <div class="rounded-3xl border border-nf-blue/25 bg-white shadow-xl p-7 md:p-10">
         <h2 class="font-heading font-extrabold text-2xl">Formulir Pendaftaran</h2>
         <p class="mt-1 text-sm text-nf-ink/55">Data tersimpan aman dan hanya terlihat oleh tim admisi.</p>
+        <div id="js-fail" class="hidden mt-4 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-sm font-bold text-red-800">
+            Formulir tidak dapat dimuat karena JavaScript gagal berjalan. Matikan pemblokir skrip/adblock untuk halaman ini lalu muat ulang. Bila berlanjut, hubungi kami via WhatsApp.
+        </div>
         @if(session('error'))<p class="mt-4 text-sm font-bold text-red-700 bg-red-50 rounded-xl px-4 py-3">{{ session('error') }}</p>@endif
         <form method="POST" action="{{ route('ppdb.store') }}" enctype="multipart/form-data" class="mt-6" x-data="ppdbWizard(@js($conditionsByJenjang), @js(old('answers', [])), @js($periodsByJenjang), '{{ old('period_id') }}')">
             @csrf
@@ -188,4 +191,16 @@
         </form>
     </div>
 </section>
+
+@include('partials.ppdb-logic')
+<script>
+window.addEventListener('load', function () {
+    setTimeout(function () {
+        if (typeof window.ppdbWizard === 'undefined' || typeof window.Alpine === 'undefined') {
+            var b = document.getElementById('js-fail');
+            if (b) b.classList.remove('hidden');
+        }
+    }, 2500);
+});
+</script>
 @endsection
