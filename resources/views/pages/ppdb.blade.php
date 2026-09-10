@@ -42,12 +42,32 @@
 
 <section id="formulir" class="mx-auto max-w-4xl px-4 sm:px-6 py-12">
     @guest
-    <div class="rounded-3xl border border-nf-blue/25 bg-white shadow-xl p-10 text-center">
-        <h2 class="font-heading font-extrabold text-2xl">Masuk untuk mengisi formulir.</h2>
-        <p class="mt-2 text-nf-ink/60">Buat akun orang tua gratis agar status pendaftaran terpantau di portal.</p>
-        <div class="mt-6 flex flex-wrap justify-center gap-3">
-            <a href="{{ route('login') }}" class="bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-extrabold px-7 py-3 rounded-full transition">Masuk</a>
-            <a href="{{ route('register') }}" class="border border-nf-blue/30 hover:bg-nf-blue-soft font-heading font-bold px-7 py-3 rounded-full transition">Buat Akun</a>
+    <div class="rounded-3xl border border-nf-blue/25 bg-white shadow-xl p-7 md:p-10">
+        <h2 class="font-heading font-extrabold text-2xl text-center">Cara mendaftar: 3 langkah mudah.</h2>
+        <ol class="mt-6 grid gap-3 sm:grid-cols-3 text-sm">
+            <li class="rounded-2xl bg-nf-cream border border-nf-blue/20 p-4"><span class="font-heading font-extrabold text-nf-blue-dark">1. Pilih jenjang</span><span class="block mt-1 text-nf-ink/60">Daycare, KBIT, SDIT, atau SMPIT sesuai usia anak.</span></li>
+            <li class="rounded-2xl bg-nf-cream border border-nf-blue/20 p-4"><span class="font-heading font-extrabold text-nf-blue-dark">2. Isi data diri</span><span class="block mt-1 text-nf-ink/60">Data calon siswa dan orang tua.</span></li>
+            <li class="rounded-2xl bg-nf-cream border border-nf-blue/20 p-4"><span class="font-heading font-extrabold text-nf-blue-dark">3. Isi formulir</span><span class="block mt-1 text-nf-ink/60">Pertanyaan tambahan sesuai jenjang, lalu kirim.</span></li>
+        </ol>
+        <div class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
+            @foreach($units as $u)
+            @php $openCount = count($periodsByJenjang[$u['slug']] ?? []); @endphp
+            <div class="rounded-2xl border border-nf-blue/15 bg-white p-4">
+                <span class="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-nf-blue to-nf-blue-dark text-white font-heading font-extrabold">{{ $u['initial'] }}</span>
+                <span class="mt-2 block font-heading font-bold text-sm">{{ $u['full'] }}</span>
+                <span class="block text-xs text-nf-ink/55 mt-0.5">{{ $u['ages'] }}</span>
+                <span class="mt-2 inline-block text-[11px] font-bold rounded-full px-2.5 py-1 {{ $openCount ? 'bg-nf-green-soft text-nf-green-dark' : 'bg-nf-ink/10 text-nf-ink/50' }}">{{ $openCount ? 'Pendaftaran dibuka' : 'Belum dibuka' }}</span>
+            </div>
+            @endforeach
+        </div>
+        <div class="mt-8 rounded-2xl bg-nf-ink text-white p-6 text-center relative overflow-hidden">
+            <div class="absolute inset-0 islamic-pattern opacity-30"></div>
+            <p class="relative font-heading font-extrabold text-lg">Masuk untuk mengisi formulir.</p>
+            <p class="relative mt-1 text-sm text-white/70">Buat akun orang tua gratis agar status pendaftaran terpantau di portal.</p>
+            <div class="relative mt-5 flex flex-wrap justify-center gap-3">
+                <a href="{{ route('login') }}" class="bg-nf-yellow text-nf-ink font-heading font-extrabold px-7 py-3 rounded-full hover:bg-white transition">Masuk</a>
+                <a href="{{ route('register') }}" class="border border-white/30 hover:bg-white/10 font-heading font-bold px-7 py-3 rounded-full transition">Buat Akun</a>
+            </div>
         </div>
     </div>
     @else
