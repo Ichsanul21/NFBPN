@@ -34,12 +34,12 @@
     {{-- Utility bar --}}
     <div class="bg-nf-ink text-white/85 text-xs">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between gap-4 py-2">
-            <p class="truncate">Senin–Jumat · 07.00–16.00 WITA · Balikpapan, Kalimantan Timur</p>
+            <p class="truncate">{{ $site['jam'] ?? '' }} · Balikpapan, Kalimantan Timur</p>
             <div class="hidden sm:flex items-center gap-4 shrink-0">
-                <a href="tel:+62542123456" class="hover:text-nf-yellow transition">(0542) 123-456</a>
-                <a href="#" class="hover:text-nf-yellow transition">Instagram</a>
-                <a href="#" class="hover:text-nf-yellow transition">Facebook</a>
-                <a href="#" class="hover:text-nf-yellow transition">YouTube</a>
+                <a href="tel:+{{ $site['whatsapp'] ?? '' }}" class="hover:text-nf-yellow transition">{{ $site['telepon'] ?? '' }}</a>
+                <a href="{{ $site['instagram'] ?? '#' }}" target="_blank" rel="noopener" class="hover:text-nf-yellow transition">Instagram</a>
+                <a href="{{ $site['facebook'] ?? '#' }}" target="_blank" rel="noopener" class="hover:text-nf-yellow transition">Facebook</a>
+                <a href="{{ $site['youtube'] ?? '#' }}" target="_blank" rel="noopener" class="hover:text-nf-yellow transition">YouTube</a>
             </div>
         </div>
     </div>
@@ -173,9 +173,9 @@
                 <div>
                     <h4 class="font-heading font-bold text-nf-yellow tracking-wide text-sm uppercase">Hubungi Kami</h4>
                     <ul class="mt-4 space-y-2.5 text-sm text-white/75">
-                        <li>Jl. Pendidikan No. 1, Balikpapan Selatan, Kalimantan Timur</li>
-                        <li>(0542) 123-456 · 08.00–16.00 WITA</li>
-                        <li>info@nurulfikri-balikpapan.sch.id</li>
+                        <li>{{ $site['alamat'] ?? '' }}</li>
+                        <li>{{ $site['telepon'] ?? '' }} · {{ $site['jam'] ?? '' }}</li>
+                        <li>{{ $site['email'] ?? '' }}</li>
                     </ul>
                     <a href="{{ route('ppdb') }}" class="mt-5 inline-flex items-center gap-2 bg-nf-yellow text-nf-ink font-heading font-bold text-sm px-5 py-2.5 rounded-full hover:bg-white transition">Daftar Sekarang</a>
                 </div>
@@ -188,7 +188,7 @@
     </footer>
 
     {{-- WhatsApp float --}}
-    <a href="https://wa.me/62542123456?text=Assalamu%27alaikum%2C%20saya%20ingin%20bertanya%20tentang%20PPDB%20Nurul%20Fikri%20Balikpapan"
+    <a href="https://wa.me/{{ $site['whatsapp'] ?? '' }}?text=Assalamu%27alaikum%2C%20saya%20ingin%20bertanya%20tentang%20PPDB%20Nurul%20Fikri%20Balikpapan"
        target="_blank" rel="noopener"
        class="fixed bottom-5 right-5 z-50 group flex items-center gap-2 bg-[#25D366] text-white pl-4 pr-4 py-3 rounded-full shadow-2xl hover:scale-105 transition"
        aria-label="Chat WhatsApp sekolah">
@@ -283,9 +283,11 @@
         if (lightbox) {
             const lbTitle = document.getElementById('lbTitle');
             const lbMeta = document.getElementById('lbMeta');
+            const lbImg = document.getElementById('lbImg');
             galItems.forEach(it => it.addEventListener('click', () => {
                 lbTitle.textContent = it.dataset.galTitle || 'Dokumentasi';
                 lbMeta.textContent = (it.dataset.galCat || '') + ' · ' + (it.dataset.galUnit || '');
+                if (lbImg && it.dataset.galSrc) { lbImg.src = it.dataset.galSrc; lbImg.alt = it.dataset.galTitle || 'Foto kegiatan'; }
                 lightbox.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             }));

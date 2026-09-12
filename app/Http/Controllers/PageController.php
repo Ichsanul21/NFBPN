@@ -179,9 +179,11 @@ class PageController extends Controller
             'category' => $g->category,
             'unit' => $g->unit ?: 'Umum',
             'src' => $g->url(),
+            'thumb' => $g->thumbUrl(),
         ])->all();
+        $cats = array_merge(['semua'], Gallery::distinct()->orderBy('category')->pluck('category')->all());
 
-        return view('pages.galeri', ['gallery' => $gallery]);
+        return view('pages.galeri', ['gallery' => $gallery, 'cats' => $cats]);
     }
 
     public function ppdb()

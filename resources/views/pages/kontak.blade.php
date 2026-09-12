@@ -32,9 +32,9 @@
         <div class="rounded-3xl bg-nf-cream border border-nf-blue/20 p-7">
             <h2 class="font-heading font-extrabold text-xl">Kampus Nurul Fikri Balikpapan</h2>
             <ul class="mt-4 space-y-2.5 text-nf-ink/75 text-sm">
-                <li>Jl. Pendidikan No. 1, Balikpapan Selatan, Kalimantan Timur</li>
-                <li>Senin–Jumat, 07.00–16.00 WITA · Sabtu 08.00–12.00 (admisi)</li>
-                <li>(0542) 123-456 · info@nurulfikri-balikpapan.sch.id</li>
+                <li>{{ $site['alamat'] ?? '' }}</li>
+                <li>{{ $site['jam'] ?? '' }}</li>
+                <li>{{ $site['telepon'] ?? '' }} · {{ $site['email'] ?? '' }}</li>
             </ul>
             <div class="mt-5 rounded-2xl overflow-hidden border border-nf-blue/20 bg-white">
                 <iframe title="Peta lokasi sekolah" src="https://www.openstreetmap.org/export/embed.html?bbox=116.80%2C-1.30%2C116.90%2C-1.22&layer=mapnik&marker=-1.26%2C116.85" class="w-full h-56" loading="lazy"></iframe>
@@ -43,7 +43,7 @@
         <div class="rounded-3xl bg-nf-blue text-white p-7">
             <h2 class="font-heading font-extrabold text-xl">Butuh respon cepat?</h2>
             <p class="mt-2 text-sm text-white/80">Chat WhatsApp admisi. Balasan tersedia di jam operasional.</p>
-            <a href="https://wa.me/62542123456" target="_blank" rel="noopener" class="mt-4 inline-block bg-white text-nf-blue-dark font-heading font-extrabold text-sm px-6 py-3 rounded-full hover:bg-nf-yellow hover:text-nf-ink transition">Chat WhatsApp</a>
+            <a href="https://wa.me/{{ $site['whatsapp'] ?? '' }}" target="_blank" rel="noopener" class="mt-4 inline-block bg-white text-nf-blue-dark font-heading font-extrabold text-sm px-6 py-3 rounded-full hover:bg-nf-yellow hover:text-nf-ink transition">Chat WhatsApp</a>
         </div>
     </div>
 </section>
