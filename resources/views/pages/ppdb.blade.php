@@ -182,6 +182,15 @@
                     <div data-jenjang-section="{{ $j }}">
                         <h3 class="font-heading font-bold text-nf-blue-dark">Formulir tambahan ({{ strtoupper($j) }})</h3>
                         @include('pages.partials.ppdb-fields', ['j' => $j, 'fields' => $fields, 'preview' => false])
+                        @if(!empty($commitments[$j]?->teks))
+                        <div class="mt-5 rounded-2xl bg-nf-cream border border-nf-blue/20 p-5" x-data="{ open: false }">
+                            <label class="flex items-start gap-3 text-sm cursor-pointer">
+                                <input type="checkbox" name="komitmen" value="1" required class="mt-1 rounded text-nf-blue">
+                                <span>Saya telah membaca dan <strong>menyetujui Pernyataan Komitmen Orang Tua</strong> untuk jenjang {{ strtoupper($j) }}. <button type="button" @click="open = !open" class="font-bold text-nf-blue-dark underline">Baca selengkapnya</button></span>
+                            </label>
+                            <div x-show="open" x-cloak class="mt-3 rounded-xl bg-white border border-nf-blue/15 p-4 text-sm leading-relaxed whitespace-pre-line">{{ $commitments[$j]->teks }}</div>
+                        </div>
+                        @endif
                     </div>
                 </template>
                 @endforeach

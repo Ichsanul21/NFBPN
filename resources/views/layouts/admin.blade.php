@@ -31,7 +31,7 @@
                     Dashboard
                 </a>
 
-                @canany(['ppdb.periods', 'ppdb.fields', 'ppdb.registrations'])
+                @canany(['ppdb.periods', 'ppdb.fields', 'ppdb.registrations', 'ppdb.documents'])
                 <p class="px-3 pt-4 pb-1 text-[11px] uppercase tracking-widest text-nf-yellow/80">PPDB</p>
                 @can('ppdb.registrations')
                 <a href="{{ route('admin.registrations.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.registrations.*') ? 'bg-nf-blue text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
@@ -49,6 +49,16 @@
                 <a href="{{ route('admin.fields.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.fields.*') ? 'bg-nf-blue text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg>
                     Form Pendaftaran
+                </a>
+                <a href="{{ route('admin.commitments.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.commitments.*') ? 'bg-nf-blue text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Komitmen Ortu
+                </a>
+                @endcan
+                @can('ppdb.documents')
+                <a href="{{ route('admin.documents.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.documents.*') ? 'bg-nf-blue text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v14a2 2 0 002 2zM9 3v4h6V3"/></svg>
+                    Dokumen Wajib
                 </a>
                 @endcan
                 @endcanany

@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\NewsImageController;
+use App\Http\Controllers\Admin\PpdbAssistedController;
+use App\Http\Controllers\Admin\PpdbCommitmentController;
+use App\Http\Controllers\Admin\PpdbDocumentController;
 use App\Http\Controllers\Admin\PpdbExportController;
 use App\Http\Controllers\Admin\PpdbFieldController;
 use App\Http\Controllers\Admin\PpdbPeriodController;
@@ -32,6 +35,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:dashboar
     Route::delete('fields/{field}', [PpdbFieldController::class, 'destroy'])->name('fields.destroy');
     Route::resource('registrations', PpdbRegistrationController::class)->only(['index', 'show', 'update', 'destroy']);
     Route::get('registrations-export', PpdbExportController::class)->name('registrations.export');
+    Route::get('registrations-manual', [PpdbAssistedController::class, 'create'])->name('registrations.manual');
+    Route::post('registrations-manual', [PpdbAssistedController::class, 'store'])->name('registrations.manual.store');
+
+    Route::resource('documents', PpdbDocumentController::class)->except(['show']);
+    Route::get('commitments', [PpdbCommitmentController::class, 'index'])->name('commitments.index');
+    Route::put('commitments', [PpdbCommitmentController::class, 'update'])->name('commitments.update');
 
     Route::resource('messages', ContactMessageController::class)->only(['index', 'show', 'update', 'destroy']);
 

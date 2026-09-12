@@ -12,6 +12,11 @@ class PpdbRegistrationPolicy
         return $user->can('ppdb.registrations') || $user->hasRole('kepala-sekolah');
     }
 
+    public function create(User $user): bool
+    {
+        return $user->can('ppdb.registrations');
+    }
+
     public function view(User $user, PpdbRegistration $registration): bool
     {
         return $user->can('ppdb.registrations')

@@ -3,9 +3,17 @@
 
 @section('content')
 <section class="mx-auto max-w-4xl px-4 sm:px-6 py-12">
-    <p class="text-xs font-bold tracking-[0.25em] uppercase text-nf-blue">Portal Orang Tua</p>
-    <h1 class="mt-3 font-heading font-extrabold text-3xl">Halo, {{ auth()->user()->name }}.</h1>
-    <p class="mt-2 text-nf-ink/60">Pantau status pendaftaran putra-putri Anda di sini.</p>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+            <p class="text-xs font-bold tracking-[0.25em] uppercase text-nf-blue">Portal Orang Tua</p>
+            <h1 class="mt-3 font-heading font-extrabold text-3xl">Halo, {{ auth()->user()->name }}.</h1>
+            <p class="mt-2 text-nf-ink/60">Pantau status pendaftaran putra-putri Anda di sini.</p>
+        </div>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button class="text-sm font-bold border border-red-200 text-red-700 hover:bg-red-50 rounded-full px-5 py-2.5 transition">Keluar akun</button>
+        </form>
+    </div>
 
     <div class="mt-8 grid gap-4">
         @forelse($regs as $r)

@@ -21,6 +21,7 @@ class PpdbRegistration extends Model
         'registration_no', 'period_id', 'user_id', 'jenjang',
         'child_name', 'child_birthdate', 'gender', 'parent_name',
         'whatsapp', 'answers', 'status', 'admin_note',
+        'dibantu_tu', 'assisted_by', 'komitmen_teks', 'komitmen_at',
     ];
 
     protected function casts(): array
@@ -28,6 +29,8 @@ class PpdbRegistration extends Model
         return [
             'child_birthdate' => 'date',
             'answers' => 'array',
+            'dibantu_tu' => 'boolean',
+            'komitmen_at' => 'datetime',
         ];
     }
 
@@ -39,6 +42,11 @@ class PpdbRegistration extends Model
     public function parent()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function assistant()
+    {
+        return $this->belongsTo(User::class, 'assisted_by');
     }
 
     public function histories()

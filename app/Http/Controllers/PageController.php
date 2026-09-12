@@ -6,6 +6,7 @@ use App\Models\Agenda;
 use App\Models\ContactMessage;
 use App\Models\Gallery;
 use App\Models\News;
+use App\Models\PpdbCommitment;
 use App\Models\PpdbFormField;
 use App\Models\PpdbPeriod;
 use App\Models\PpdbRegistration;
@@ -215,6 +216,7 @@ class PageController extends Controller
             'periodsByJenjang' => $periodsByJenjang,
             'fieldsByJenjang' => $fieldsByJenjang,
             'conditionsByJenjang' => $conditionsByJenjang,
+            'commitments' => PpdbCommitment::all()->keyBy('jenjang'),
         ]);
     }
 
@@ -245,25 +247,14 @@ class PageController extends Controller
             $rules['whatsapp'] = 'required|string|max:20';
             $rules['password'] = ['required', 'string', \App\Support\Passwords::rule(), 'confirmed'];
         }
-        $fields = PpdbFormField::forJenjang($jenjang)->active()->ordered()->get();
+        $fields = \App\Services\PpdbRegistrationService::fieldsFor($jenjang);
         $submitted = $request->input('answers', []);
-        $visible = $fields->filter(fn ($f) => $f->isVisibleFor($submitted))->values();
-        foreach ($visible as $f) {
-            $key = "answers.{$f->key}";
-            $base = match ($f->type) {
-                'number' => 'numeric',
-                'date' => 'date',
-                'file' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
-                'checkbox' => 'array',
-                default => 'string|max:2000',
-            };
-            $rules[$key] = ($f->is_required ? 'required' : 'nullable').'|'.$base;
-            if (in_array($f->type, ['select', 'radio'], true) && $f->options) {
-                $rules[$key] .= '|in:'.implode(',', $f->options);
-            }
-            if ($f->type === 'checkbox' && $f->options) {
-                $rules[$key.'.'] = 'in:'.implode(',', $f->options);
-            }
+        $visible = \App\Services\PpdbRegistrationService::visibleFields($fields, $submitted);
+        $rules = array_merge($rules, \App\Services\PpdbRegistrationService::buildRules($fields, $submitted));
+
+        $commitment = PpdbCommitment::where('jenjang', $jenjang)->first();
+        if ($commitment?->teks) {
+            $rules['komitmen'] = 'accepted';
         }
 
         $data = $request->validate($rules, [
@@ -288,37 +279,18 @@ class PageController extends Controller
             return back()->with('error', 'Anda sudah terdaftar pada periode ini. Pantau statusnya di portal orang tua.')->withInput();
         }
 
-        $answers = $data['answers'] ?? [];
-        foreach ($visible as $f) {
-            if ($f->type === 'file' && $request->hasFile("answers.{$f->key}")) {
-                $answers[$f->key] = $request->file("answers.{$f->key}")->store('ppdb/berkas', 'public');
-            }
-        }
+        $answers = \App\Services\PpdbRegistrationService::extractAnswers($request, $visible, $data);
 
-        do {
-            $no = 'NF-'.now()->format('Y').'-'.str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        } while (PpdbRegistration::where('registration_no', $no)->exists());
-
-        $reg = PpdbRegistration::create([
-            'registration_no' => $no,
-            'period_id' => $period->id,
-            'user_id' => $user->id,
-            'jenjang' => $jenjang,
-            'child_name' => \App\Support\Sanitize::name($data['child_name']),
-            'child_birthdate' => $data['child_birthdate'],
-            'gender' => $data['gender'] ?? null,
-            'parent_name' => \App\Support\Sanitize::name($data['parent_name']),
-            'whatsapp' => \App\Support\Sanitize::phone($data['whatsapp']),
-            'answers' => $answers,
-            'status' => 'terkirim',
-        ]);
+        $reg = \App\Services\PpdbRegistrationService::createRegistration(
+            $user, $period, $data, $answers, null, $commitment?->teks
+        );
 
         if (! $user->hasRole('orang-tua') && Role::where('name', 'orang-tua')->exists()) {
             $user->assignRole('orang-tua');
         }
 
         return redirect()->route('portal.show', $reg)
-            ->with('success', 'Pendaftaran terkirim. Nomor registrasi Anda: '.$no);
+            ->with('success', 'Pendaftaran terkirim. Nomor registrasi Anda: '.$reg->registration_no);
     }
 
     public function ppdbStatus(Request $request)

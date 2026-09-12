@@ -79,10 +79,32 @@
                     <a href="{{ route('kontak') }}" class="px-3 py-2 rounded-lg hover:bg-nf-blue-soft hover:text-nf-blue-dark transition {{ request()->routeIs('kontak') ? 'text-nf-blue-dark bg-nf-blue-soft' : 'text-nf-ink/80' }}">Kontak</a>
                 </nav>
                 <div class="flex items-center gap-2">
+                    @guest
+                    <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-2 border border-nf-blue/30 hover:bg-nf-blue-soft font-heading font-bold text-sm px-5 py-2.5 rounded-full transition">Masuk</a>
+                    @endguest
                     <a href="{{ route('ppdb') }}" class="hidden sm:inline-flex items-center gap-2 bg-nf-blue hover:bg-nf-blue-dark text-white font-heading font-bold text-sm px-5 py-2.5 rounded-full shadow-lg shadow-nf-blue/30 transition">
                         Daftar PPDB
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
                     </a>
+                    @auth
+                    <div class="relative hidden sm:block" x-data="{ open: false }" @click.outside="open = false">
+                        <button @click="open = !open" class="flex items-center gap-2 rounded-full border border-nf-blue/30 pl-1.5 pr-3 py-1.5 hover:bg-nf-blue-soft transition" aria-label="Menu akun">
+                            <span class="grid place-items-center w-8 h-8 rounded-full bg-nf-blue text-white font-heading font-bold text-sm">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
+                            <svg class="w-3.5 h-3.5 text-nf-ink/60" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div x-show="open" x-cloak class="absolute right-0 mt-2 w-52 rounded-2xl border border-nf-blue/15 bg-white shadow-xl p-2 text-sm font-bold">
+                            <p class="px-3 py-2 text-nf-ink/55 truncate">{{ auth()->user()->name }}</p>
+                            <a href="{{ route('portal.index') }}" class="block px-3 py-2.5 rounded-xl hover:bg-nf-cream">Portal saya</a>
+                            @if(auth()->user()->can('dashboard.view'))
+                            <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2.5 rounded-xl hover:bg-nf-cream">Panel admin</a>
+                            @endif
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button class="w-full text-left px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50">Keluar akun</button>
+                            </form>
+                        </div>
+                    </div>
+                    @endauth
                     <button id="menuBtn" class="lg:hidden grid place-items-center w-11 h-11 rounded-xl border border-nf-blue/30 text-nf-ink" aria-label="Buka menu">
                         <svg id="menuIconOpen" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
                         <svg id="menuIconClose" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
@@ -102,6 +124,15 @@
                     @endforeach
                 </div>
                 <a href="{{ route('ppdb') }}" class="mt-1 text-center bg-nf-blue text-white font-heading font-bold px-4 py-3 rounded-xl">Daftar PPDB 2026/2027</a>
+                @guest
+                <a href="{{ route('login') }}" class="text-center border border-nf-blue/30 font-heading font-bold px-4 py-3 rounded-xl">Masuk Akun</a>
+                @else
+                <a href="{{ route('portal.index') }}" class="text-center bg-nf-cream font-heading font-bold px-4 py-3 rounded-xl">Portal Saya ({{ mb_strimwidth(auth()->user()->name, 0, 18, '…') }})</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="w-full text-center text-red-600 font-heading font-bold px-4 py-3 rounded-xl border border-red-200">Keluar Akun</button>
+                </form>
+                @endauth
             </div>
         </div>
     </header>

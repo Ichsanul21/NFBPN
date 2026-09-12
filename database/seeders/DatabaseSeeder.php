@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Agenda;
 use App\Models\News;
 use App\Models\NewsCategory;
+use App\Models\PpdbCommitment;
+use App\Models\PpdbDocument;
 use App\Models\PpdbFormField;
 use App\Models\PpdbPeriod;
 use App\Models\SiteSetting;
@@ -22,7 +24,7 @@ class DatabaseSeeder extends Seeder
         $permissions = [
             'dashboard.view',
             'users.manage',
-            'ppdb.periods', 'ppdb.fields', 'ppdb.registrations', 'ppdb.export',
+            'ppdb.periods', 'ppdb.fields', 'ppdb.registrations', 'ppdb.export', 'ppdb.documents',
             'news.manage', 'gallery.manage', 'agenda.manage', 'testimonial.manage',
             'messages.manage', 'settings.manage',
         ];
@@ -32,7 +34,7 @@ class DatabaseSeeder extends Seeder
 
         $roles = [
             'super-admin' => $permissions,
-            'admin-ppdb' => ['dashboard.view', 'ppdb.periods', 'ppdb.fields', 'ppdb.registrations', 'ppdb.export', 'messages.manage'],
+            'admin-ppdb' => ['dashboard.view', 'ppdb.periods', 'ppdb.fields', 'ppdb.registrations', 'ppdb.export', 'ppdb.documents', 'messages.manage'],
             'editor' => ['dashboard.view', 'news.manage', 'gallery.manage', 'agenda.manage', 'testimonial.manage'],
             'kepala-sekolah' => ['dashboard.view'],
             'orang-tua' => [],
@@ -148,6 +150,28 @@ class DatabaseSeeder extends Seeder
             foreach ($pairs as $key => $value) {
                 SiteSetting::firstOrCreate(['key' => $key], ['value' => $value, 'group' => $group]);
             }
+        }
+
+        $baseDocs = [
+            ['Kartu Keluarga (KK)', 'Pindaian KK terbaru.', true],
+            ['Akta Kelahiran', 'Pindaian akta kelahiran anak.', true],
+            ['Pas foto anak', 'Foto formal terbaru, latar bebas.', true],
+        ];
+        $extraDocs = [
+            'sdit' => [['Rapor semester terakhir', 'Pindaian rapor TK/asal sekolah.', true]],
+            'smpit' => [['Rapor semester terakhir', 'Pindaian rapor SD/MI.', true]],
+        ];
+        foreach (['daycare', 'kbit', 'sdit', 'smpit'] as $i => $slug) {
+            $docs = array_merge($baseDocs, $extraDocs[$slug] ?? []);
+            foreach ($docs as $n => [$label, $deskripsi, $wajib]) {
+                PpdbDocument::firstOrCreate(['jenjang' => $slug, 'label' => $label], [
+                    'deskripsi' => $deskripsi, 'wajib' => $wajib, 'urut' => $n,
+                    'allowed' => ['pdf', 'jpg', 'png', 'webp'], 'max_kb' => 2048, 'compress' => true,
+                ]);
+            }
+            PpdbCommitment::firstOrCreate(['jenjang' => $slug], [
+                'teks' => "Dengan ini saya sebagai orang tua/wali calon siswa menyatakan:\n1. Data yang saya isi adalah benar.\n2. Bersedia mengikuti seluruh tata tertib dan program pembinaan sekolah.\n3. Berkomitmen mendampingi proses belajar anak di rumah.\n\nBalikpapan, ____________\n( Nama terang dan tanda tangan )",
+            ]);
         }
     }
 }

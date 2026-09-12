@@ -10,7 +10,10 @@
                 <h2 class="font-heading font-extrabold text-xl">{{ $item->child_name }}</h2>
                 <p class="text-sm text-nf-ink/55">{{ $item->registration_no }} · {{ strtoupper($item->jenjang) }} · {{ $item->period?->name }}</p>
             </div>
-            <span class="text-xs font-bold bg-nf-blue-soft text-nf-blue-dark rounded-full px-4 py-2">{{ $item->statusLabel() }}</span>
+            <span class="flex flex-wrap gap-2">
+                <span class="text-xs font-bold bg-nf-blue-soft text-nf-blue-dark rounded-full px-4 py-2">{{ $item->statusLabel() }}</span>
+                @if($item->dibantu_tu)<span class="text-xs font-bold bg-nf-yellow text-nf-ink rounded-full px-4 py-2">Dibantu TU{{ $item->assistant ? ' · '.$item->assistant->name : '' }}</span>@endif
+            </span>
         </div>
         <dl class="mt-5 grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
             <div><dt class="text-nf-ink/50 font-bold text-xs uppercase">Tanggal lahir</dt><dd class="font-bold">{{ $item->child_birthdate?->format('d M Y') }}</dd></div>
@@ -34,6 +37,29 @@
         <div class="mt-5 rounded-2xl bg-nf-yellow/30 border border-nf-yellow-dark/40 p-4 text-sm">
             <p class="font-bold text-xs uppercase text-nf-ink/60">Catatan admin</p>
             <p class="mt-1">{{ $item->admin_note }}</p>
+        </div>
+        @endif
+        @if(count($documents))
+        <div class="mt-6">
+            <h3 class="font-heading font-bold">Checklist dokumen</h3>
+            <ul class="mt-3 space-y-2 text-sm">
+                @foreach($documents as $d)
+                @php $up = ($item->answers['dokumen'][$d->docKey()] ?? null); @endphp
+                <li class="flex items-center gap-3 rounded-2xl border border-nf-blue/15 px-4 py-2.5">
+                    <span class="grid place-items-center w-6 h-6 rounded-full shrink-0 {{ $up ? 'bg-nf-green text-white' : 'bg-nf-ink/10 text-nf-ink/40' }}">
+                        @if($up)<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>@else<span class="text-xs font-bold">!</span>@endif
+                    </span>
+                    <span class="flex-1"><strong>{{ $d->label }}</strong>@if(!$d->wajib)<span class="text-nf-ink/50"> (opsional)</span>@endif</span>
+                    @if($up)<a href="{{ asset('storage/'.$up['path']) }}" target="_blank" class="font-bold text-nf-blue-dark hover:underline shrink-0">Lihat</a>@endif
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+        @if($item->komitmen_teks)
+        <div class="mt-6 rounded-2xl bg-nf-cream border border-nf-blue/20 p-4 text-sm">
+            <p class="font-bold text-xs uppercase text-nf-ink/60">Komitmen disetujui {{ $item->komitmen_at?->format('d M Y H:i') }}</p>
+            <p class="mt-2 whitespace-pre-line text-nf-ink/80">{{ $item->komitmen_teks }}</p>
         </div>
         @endif
         <div class="mt-6">

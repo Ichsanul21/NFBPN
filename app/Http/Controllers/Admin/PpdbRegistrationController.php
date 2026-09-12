@@ -35,12 +35,14 @@ class PpdbRegistrationController extends Controller
     {
         $this->authorize('view', $registration);
 
-        $registration->load(['period', 'parent', 'histories.changer']);
+        $registration->load(['period', 'parent', 'assistant', 'histories.changer']);
         $fields = PpdbFormField::forJenjang($registration->jenjang)->ordered()->get()->keyBy('key');
+        $documents = \App\Models\PpdbDocument::forJenjang($registration->jenjang)->ordered()->get();
 
         return view('admin.registrations.show', [
             'item' => $registration,
             'fields' => $fields,
+            'documents' => $documents,
             'statuses' => PpdbRegistration::STATUSES,
         ]);
     }

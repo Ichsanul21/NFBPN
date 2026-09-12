@@ -51,8 +51,69 @@
         </ol>
     </div>
 
+    @if(count($documents))
+    @php
+    $uploaded = ($item->answers ?? [])['dokumen'] ?? [];
+    $wajibDocs = $documents->where('wajib', true);
+    $doneWajib = $wajibDocs->filter(fn ($d) => isset($uploaded[$d->docKey()]))->count();
+    @endphp
     <div class="mt-6 rounded-3xl border border-nf-blue/20 bg-white p-6">
-        <h2 class="font-heading font-extrabold">Unggah berkas tambahan</h2>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="font-heading font-extrabold">Dokumen wajib</h2>
+            <span class="text-xs font-bold {{ $doneWajib >= $wajibDocs->count() && $wajibDocs->count() ? 'text-nf-green-dark' : 'text-nf-ink/55' }}">{{ $doneWajib }} dari {{ $wajibDocs->count() }} wajib terpenuhi</span>
+        </div>
+        @if($wajibDocs->count())
+        <div class="mt-2 h-2.5 rounded-full bg-nf-blue-soft overflow-hidden"><div class="h-full rounded-full bg-nf-green" style="width: {{ $wajibDocs->count() ? round($doneWajib / $wajibDocs->count() * 100) : 0 }}%"></div></div>
+        @endif
+        <ul class="mt-4 space-y-3">
+            @foreach($documents as $d)
+            @php $up = $uploaded[$d->docKey()] ?? null; @endphp
+            <li class="rounded-2xl border border-nf-blue/15 p-4">
+                <div class="flex items-center gap-3">
+                    <span class="grid place-items-center w-7 h-7 rounded-full shrink-0 {{ $up ? 'bg-nf-green text-white' : 'bg-nf-ink/10 text-nf-ink/40' }}">
+                        @if($up)<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>@else<span class="text-xs font-bold">!</span>@endif
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-sm">{{ $d->label }} @if(!$d->wajib)<span class="font-normal text-nf-ink/50">(opsional)</span>@endif</p>
+                        <p class="text-xs text-nf-ink/55">{{ $d->deskripsi }} Format: {{ implode(', ', array_map('strtoupper', (array) ($d->allowed ?: []))) }} · maks {{ number_format($d->max_kb) }} KB.</p>
+                    </div>
+                    @if($up)<a href="{{ asset('storage/'.$up['path']) }}" target="_blank" class="text-xs font-bold text-nf-blue-dark hover:underline shrink-0">Lihat</a>@endif
+                </div>
+                <form method="POST" action="{{ route('portal.berkas', $item) }}" enctype="multipart/form-data" class="mt-3 flex flex-wrap gap-2">
+                    @csrf
+                    <input type="hidden" name="doc_id" value="{{ $d->id }}">
+                    <input type="file" name="berkas" required accept="{{ '.' . implode(',.', $d->allowedMimes()) }}" class="flex-1 min-w-40 text-xs file:mr-2 file:rounded-full file:border-0 file:bg-nf-blue-soft file:text-nf-blue-dark file:font-bold file:px-3 file:py-1.5">
+                    <button class="bg-nf-blue hover:bg-nf-blue-dark text-white font-bold text-xs px-4 py-2 rounded-full transition">{{ $up ? 'Ganti' : 'Unggah' }}</button>
+                </form>
+            </li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    @if($item->dibantu_tu)
+    <div class="mt-6 rounded-3xl bg-nf-yellow/30 border border-nf-yellow-dark/40 p-5 text-sm">
+        <p class="font-bold">Pendaftaran dibantu staf TU.</p>
+        <p class="mt-1 text-nf-ink/70">Data ini diisikan dengan bantuan petugas. Bila ada yang kurang tepat, hubungi kami via WhatsApp.</p>
+    </div>
+    @endif
+
+    @if($item->komitmen_teks)
+    <div class="mt-6 rounded-3xl bg-nf-cream border border-nf-blue/20 p-5 text-sm" x-data="{ open: false }">
+        <p class="font-bold">Pernyataan Komitmen disetujui {{ $item->komitmen_at?->format('d M Y H:i') }}.</p>
+        <button type="button" @click="open = !open" class="mt-1 font-bold text-nf-blue-dark underline">Lihat teks</button>
+        <p x-show="open" class="mt-2 whitespace-pre-line text-nf-ink/75">{{ $item->komitmen_teks }}</p>
+    </div>
+    @endif
+
+    <div class="mt-6 rounded-3xl border border-nf-blue/20 bg-white p-6">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="font-heading font-extrabold">Unggah berkas tambahan</h2>
+            <form method="POST" action="{{ route('logout') }}" class="sm:hidden">
+                @csrf
+                <button class="text-xs font-bold text-red-600 hover:underline">Keluar akun</button>
+            </form>
+        </div>
         <p class="mt-1 text-sm text-nf-ink/60"> Contoh: rapor terbaru, sertifikat, atau dokumen susulan. Maksimal 5MB (PDF/JPG/PNG/WebP).</p>
         <form method="POST" action="{{ route('portal.berkas', $item) }}" enctype="multipart/form-data" class="mt-4 grid sm:grid-cols-[1fr_1fr_auto] gap-3">
             @csrf

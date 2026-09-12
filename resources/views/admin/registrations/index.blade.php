@@ -24,12 +24,15 @@
         @endcan
     </div>
 </form>
+<div class="flex justify-end mb-4">
+    <a href="{{ route('admin.registrations.manual') }}" class="bg-nf-ink hover:bg-nf-blue-dark text-white font-heading font-bold text-sm px-5 py-2.5 rounded-full transition">+ Daftarkan Manual (Dibantu TU)</a>
+</div>
 <div class="rounded-3xl bg-white border border-nf-blue/15 overflow-hidden">
     <div class="divide-y divide-nf-blue/10">
         @forelse($regs as $r)
         <a href="{{ route('admin.registrations.show', $r) }}" class="flex items-center gap-4 px-5 py-4 hover:bg-nf-blue-soft/40 transition">
             <div class="flex-1 min-w-0">
-                <p class="font-heading font-bold truncate">{{ $r->child_name }} <span class="text-nf-ink/45 font-normal text-sm">{{ $r->registration_no }}</span></p>
+                <p class="font-heading font-bold truncate">{{ $r->child_name }} <span class="text-nf-ink/45 font-normal text-sm">{{ $r->registration_no }}</span>@if($r->dibantu_tu)<span class="ml-1 text-[10px] font-bold uppercase bg-nf-yellow text-nf-ink rounded-full px-2 py-0.5">Dibantu TU</span>@endif</p>
                 <p class="text-xs text-nf-ink/50 mt-0.5">{{ strtoupper($r->jenjang) }} · {{ $r->period?->name }} · {{ $r->created_at->format('d M Y') }}</p>
             </div>
             <span class="text-xs font-bold bg-nf-blue-soft text-nf-blue-dark rounded-full px-3 py-1.5 shrink-0">{{ $r->statusLabel() }}</span>
